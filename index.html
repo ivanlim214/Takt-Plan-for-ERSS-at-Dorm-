@@ -62,7 +62,24 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 .zone-poly.status-active{filter:drop-shadow(0 0 6px currentColor)}
 @keyframes zone-pulse{0%,100%{fill-opacity:0.72}50%{fill-opacity:0.92}}
 .zone-poly.status-active{animation:zone-pulse 1.8s ease-in-out infinite}
-.zone-badge{position:absolute;transform:translate(-50%,-50%);pointer-events:none;text-align:center;z-index:10;line-height:1.2}
+.zone-badge{
+  position:absolute;
+  transform:translate(-50%,-50%);
+  pointer-events:all;
+  text-align:center;
+  z-index:10;
+  line-height:1.2;
+  cursor:grab;
+  user-select:none;
+  -webkit-user-select:none;
+}
+.zone-badge:active{cursor:grabbing;z-index:50}
+.zone-badge .drag-handle{
+  display:flex;align-items:center;justify-content:center;
+  gap:3px;padding:1px 0;opacity:.5;font-size:8px;cursor:grab;
+  color:rgba(255,255,255,.6);letter-spacing:2px;
+}
+.zone-badge:hover .drag-handle{opacity:.9}
 .zb-id{font-family:var(--mono);font-size:12px;font-weight:700;background:rgba(0,0,0,.88);border-radius:3px;padding:3px 7px;border:1px solid rgba(255,255,255,.25);white-space:nowrap;letter-spacing:.04em;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 .zb-task{font-size:9px;font-family:var(--mono);font-weight:700;border-radius:2px;padding:1px 5px;margin-top:2px;white-space:nowrap;display:none}
 .zb-task.excav{background:var(--excav);color:#fff}.zb-task.lean{background:var(--lean);color:#fff}
@@ -93,12 +110,12 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 .blk-badge{font-size:10px;font-weight:700;color:#000;background:var(--accent);padding:2px 6px;border-radius:3px}
 .zone-rows{display:flex;flex-direction:column;gap:4px}
 .z-row{display:flex;align-items:center;gap:7px}
-.z-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--muted);width:14px;text-align:center;flex-shrink:0}
+.z-id{font-family:var(--mono);font-size:12px;font-weight:700;color:#a0b8d0;width:16px;text-align:center;flex-shrink:0}
 .z-track{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;height:32px;position:relative;overflow:hidden;display:flex}
 .z-seg{height:100%;flex-shrink:0;transition:opacity .2s}
-.z-seg.excav{background:rgba(255,107,53,.2)}.z-seg.lean{background:rgba(233,30,140,.2)}
-.z-seg.rebar{background:rgba(0,196,255,.2)}.z-seg.form{background:rgba(167,139,250,.2)}
-.z-seg.cast{background:rgba(34,214,122,.2)}
+.z-seg.excav{background:rgba(255,107,53,.28)}.z-seg.lean{background:rgba(233,30,140,.28)}
+.z-seg.rebar{background:rgba(0,196,255,.28)}.z-seg.form{background:rgba(167,139,250,.28)}
+.z-seg.cast{background:rgba(34,214,122,.28)}
 .z-seg.active-task.excav{background:var(--excav)}.z-seg.active-task.lean{background:var(--lean)}
 .z-seg.active-task.rebar{background:var(--rebar)}.z-seg.active-task.form{background:var(--form)}
 .z-seg.active-task.cast{background:var(--cast)}
@@ -106,8 +123,8 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 @keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
 .z-seg.active-task{animation:pulse 1.7s ease-in-out infinite}
 .z-label-overlay{position:absolute;inset:0;display:flex;align-items:center;padding:0 5px;pointer-events:none;z-index:2}
-.z-label-text{font-size:9px;font-family:var(--mono);color:rgba(255,255,255,.92);white-space:nowrap;overflow:hidden}
-.z-status{font-size:9px;color:var(--muted);width:55px;text-align:right;font-family:var(--mono);flex-shrink:0}
+.z-label-text{font-size:10px;font-family:var(--mono);font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.8)}
+.z-status{font-size:10px;color:#8aa0bc;width:68px;text-align:right;font-family:var(--mono);flex-shrink:0;font-weight:600;letter-spacing:.02em}
 
 /* ══ GANTT ══ */
 .gantt-wrap{padding:14px 20px;overflow-x:auto}
@@ -261,10 +278,21 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
   z-index: 15;
   min-width: 100px;
   max-width: 150px;
-  pointer-events: none;
+  pointer-events: all;
   text-align: left;
   filter: drop-shadow(0 2px 8px rgba(0,0,0,.8));
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
 }
+.pdf-zone-card:active { cursor: grabbing; z-index: 50; }
+.pdf-zone-card .drag-handle {
+  display:flex;align-items:center;justify-content:center;
+  gap:3px;padding:1px 4px;opacity:.4;font-size:8px;cursor:grab;
+  color:rgba(255,255,255,.7);letter-spacing:2px;
+  background:rgba(0,0,0,.3);border-radius:3px 3px 0 0;
+}
+.pdf-zone-card:hover .drag-handle{opacity:.85}
 .pdf-zone-card .pzc-id {
   font-family: var(--mono);
   font-size: 11px;
@@ -296,7 +324,9 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 .pdf-zone-card .pzc-trade.pending{ background: rgba(30,34,48,.85); color: var(--muted); border-color: var(--border); }
 .pdf-zone-card .pzc-trade.delayed{ background: #f59e0b; color: #000; }
 @keyframes card-pulse { 0%,100%{opacity:1;transform:translate(-50%,-50%) scale(1)} 50%{opacity:.9;transform:translate(-50%,-50%) scale(1.05)} }
-.pdf-zone-card.is-active { animation: card-pulse 1.8s ease-in-out infinite; pointer-events: none; }
+.pdf-zone-card.dragging { animation: none !important; transform: translate(-50%,-50%) !important; }
+.zone-badge.dragging    { animation: none !important; }
+.pdf-zone-card.is-active { animation: card-pulse 1.8s ease-in-out infinite; pointer-events: all; }
 .pdf-zone-card .pzc-dates {
   font-size: 8px;
   color: rgba(255,255,255,.7);
@@ -367,7 +397,18 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 .gsl-bar.delayed{background:#888;outline:2px dashed #f59e0b;outline-offset:1px}
 .gsl-bar.not-started{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2)}
 .gsl-sep{width:1px;height:16px;background:var(--border);margin:0 4px}
+
+/* Drag indicator line connecting card to zone centre */
+.zone-tether { position:absolute; pointer-events:none; z-index:8; }
+.drag-hint-badge {
+  position:absolute;bottom:-18px;left:50%;transform:translateX(-50%);
+  font-size:8px;color:rgba(255,255,255,.4);white-space:nowrap;
+  pointer-events:none;display:none;font-family:var(--mono);
+}
+.zone-badge:hover .drag-hint-badge,
+.pdf-zone-card:hover .drag-hint-badge { display:block; }
 </style>
+
 </head>
 <body>
 
@@ -435,10 +476,12 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
             title="Hide all overlays — clean map only">✕ Off</button>
         </div>
         <button class="pmap-btn" id="edit-zone-btn" onclick="toggleEditMode()" style="border-color:#f59e0b;color:#f59e0b">✏ Edit Zones</button>
-        <button class="pmap-btn" onclick="exportZoneDefs()" style="border-color:var(--cast);color:var(--cast)" title="Export zone coords as JSON">⬇ Export Zones</button>
-        <label class="pmap-btn" style="border-color:var(--rebar);color:var(--rebar);cursor:pointer" title="Import zone coords from JSON">
-          ⬆ Import Zones<input type="file" accept=".json" style="display:none" onchange="importZoneDefs(this)">
-        </label>
+        <button class="pmap-btn" onclick="resetCardPositions()" style="border-color:var(--muted);color:var(--muted)" title="Reset all card positions to default">↺ Reset Cards</button>
+        <button class="pmap-btn" onclick="saveCardPositions()" style="border-color:var(--cast);color:var(--cast)" title="Save card positions to browser storage">💾 Save Layout</button>
+        <div style="display:flex;border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+          <button class="pmap-btn" onclick="exportZoneDefs(true)" style="border:none;border-right:1px solid var(--border);border-color:var(--cast);color:var(--cast)" title="Export zone map with live task status overlaid">🖼 Status Map</button>
+          <button class="pmap-btn" onclick="exportZoneDefs(false)" style="border:none;color:var(--rebar)" title="Export clean plan image with zone names only — no status overlay">🖼 Clean Plan</button>
+        </div>
       </div>
     </div>
     <div class="edit-mode-banner" id="edit-banner">
@@ -518,6 +561,13 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
       <div class="sum-card"><div class="sc-l">Delayed</div><div class="sc-v" id="sc-delayed" style="color:var(--accent)">0</div><div class="sc-sub">behind schedule</div></div>
       <div class="sum-card"><div class="sc-l">Pending</div><div class="sc-v" id="sc-pending" style="color:var(--muted)">0</div><div class="sc-sub">not started</div></div>
       <div class="sum-card"><div class="sc-l">Total</div><div class="sc-v" style="color:var(--text)">21</div><div class="sc-sub">zones</div></div>
+      <div class="sum-card" style="display:flex;align-items:center;justify-content:center;min-width:120px;cursor:pointer;border-color:var(--cast)" onclick="exportZoneStatus()">
+        <div style="text-align:center">
+          <div style="font-size:18px">🖼</div>
+          <div style="font-size:10px;font-weight:700;color:var(--cast);margin-top:2px">Export PNG</div>
+          <div style="font-size:9px;color:var(--muted)" id="export-date-label">15 Jun 2026</div>
+        </div>
+      </div>
     </div>
     <div class="blk-card"><div class="blk-title"><span class="blk-badge">BLK 6</span>Block 6 · 7 zones</div><div class="zone-rows" id="map-Blk6"></div></div>
     <div class="blk-card"><div class="blk-title"><span class="blk-badge">BLK 5</span>Block 5 · 7 zones</div><div class="zone-rows" id="map-Blk5"></div></div>
@@ -534,6 +584,7 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
       <button class="tbtn" onclick="markPastComplete()" style="border-color:var(--cast);color:var(--cast)" title="Mark all tasks whose planned end date has passed as Completed">✓ Auto-complete Past</button>
       <button class="tbtn" onclick="clearAllStatus()" style="border-color:var(--excav);color:var(--excav)" title="Reset all statuses">↺ Reset All</button>
       <button class="tbtn green" onclick="exportExcel()">⬇ Export Excel</button>
+      <button class="tbtn" onclick="exportGanttPng()" style="border-color:var(--lean);color:var(--lean)" title="Export full Takt Schedule as high-res PNG">🖼 Export PNG</button>
       <label class="tbtn blue" style="cursor:pointer">
         ⬆ Import Excel <input type="file" accept=".xlsx,.xls,.csv" style="display:none" onchange="importFile(this)">
       </label>
@@ -810,7 +861,7 @@ function setStatus(t,s){STATUS[taskKey(t)]=s}
 // HELPERS
 // ──────────────────────────────────────────────────────────────────────────────
 const pd=s=>{if(!s)return null;const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d)};
-const df=(d,sep='-')=>{if(!d)return'';const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return`${y}${sep}${m}${sep}${dd}`};
+function df(d,sep){if(!d)return'';if(sep===undefined)sep='-';var y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),dd=String(d.getDate()).padStart(2,'0');return y+sep+m+sep+dd;}
 const diff=(a,b)=>Math.round((b-a)/864e5);
 const addD=(d,n)=>{const r=new Date(d);r.setDate(r.getDate()+n);return r};
 const fmtD=d=>d?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'–';
@@ -825,6 +876,12 @@ RAW.forEach(r=>{
 });
 function effSD(r){const st=getStatus(r);return st.revisedStart?pd(st.revisedStart):r.sd}
 function effED(r){const st=getStatus(r);return st.revisedEnd?pd(st.revisedEnd):r.ed}
+
+// ── Early declarations (must be var to avoid TDZ) ────────────────────────────
+var cardOffsets = {};   // drag offsets per zone
+var _drag       = null; // active drag state
+// editMode declared in zone editor section (also var)
+
 
 const PLAN_START=pd('2026-05-26');
 const PLAN_END=pd('2026-07-20');
@@ -924,9 +981,13 @@ function initOverlay(blk){
     div.id='badge-'+key+'-'+zone;
     div.style.left=def.cx+'%';
     div.style.top=def.cy+'%';
-    div.innerHTML=`<div class="zb-id">Zone ${zone}</div>
+    div.style.pointerEvents='all';
+    div.innerHTML=`<div class="drag-handle" title="Drag to move">⠿ ⠿</div>
+      <div class="zb-id">Zone ${zone}</div>
       <div class="zb-task" id="zbtask-${key}-${zone}"></div>
-      <div class="zb-dates" id="zbdates-${key}-${zone}"></div>`;
+      <div class="zb-dates" id="zbdates-${key}-${zone}"></div>
+      <div class="zbtasklist" id="zbtasklist-${key}-${zone}" style="display:none"></div>
+      <div class="drag-hint-badge">drag to move</div>`;
     badges.appendChild(div);
   });
 
@@ -947,7 +1008,7 @@ function getBadgeInfo(blk,zone){
   if(active){const s=getStatus(active);return{task:active.task,status:s.status||'Active',color:TC[active.task]||'#fff',start:fmtShort(effSD(active)),end:fmtShort(effED(active)),remarks:s.remarks||''}}
   if(allDone) return{task:'Complete',status:'DONE',color:'#4ade80',start:fmtShort(firstStart),end:fmtShort(lastEnd),remarks:''}
   if(delayed) return{task:'',status:'DELAYED',color:'#f59e0b',start:fmtShort(firstStart),end:fmtShort(lastEnd),remarks:''}
-  if(notStarted) return{task:zTasks[0]?.task||'—',status:'Pending',color:'#5a7090',start:fmtShort(firstStart),end:fmtShort(lastEnd),remarks:''}
+  if(notStarted) return{task:(zTasks[0]&&zTasks[0].task)||'—',status:'Pending',color:'#5a7090',start:fmtShort(firstStart),end:fmtShort(lastEnd),remarks:''}
   return{task:'',status:'In Progress',color:TC['Rebar Works'],start:fmtShort(firstStart),end:fmtShort(lastEnd),remarks:''}
 }
 
@@ -990,6 +1051,7 @@ function setViewMode(mode) {
     document.getElementById('edit-zone-btn').style.display = 'none';
   }
   buildAllPdfCards();
+  registerAllPdfCards();
   updatePilingMap(activeBlock);
 }
 
@@ -1014,6 +1076,7 @@ function buildPdfCards(blk) {
     card.id = 'pdfcard-' + key + '-' + zone;
     card.style.left = cx + '%';
     card.style.top  = cy + '%';
+    card.style.pointerEvents = 'all';  // always draggable regardless of status
     // Build task rows for all 5 trades
     const zTasks = byZone[key+'-'+zone] || [];
     const taskRows = zTasks.map(t => {
@@ -1025,6 +1088,7 @@ function buildPdfCards(blk) {
              '</div>';
     }).join('');
     card.innerHTML =
+      '<div class="drag-handle" title="Drag to move">⠿ ⠿</div>' +
       '<div class="pzc-id">Zone ' + zone + '</div>' +
       '<div class="pzc-trade pending" id="pzct-' + key + '-' + zone + '">–</div>' +
       '<div class="pzc-dates" id="pzcd-' + key + '-' + zone + '"></div>' +
@@ -1435,25 +1499,32 @@ function clearTaskStatus(){
 // EXPORT / IMPORT EXCEL  (uses SheetJS-like CSV fallback — pure JS)
 // ──────────────────────────────────────────────────────────────────────────────
 function exportExcel(){
-  const rows=[['Block','Zone','Trade','Planned Start','Planned End','Revised Start','Revised End','% Complete','Status','Remarks','Updated At']];
+  // Pure CSV export — no CDN required, opens in Excel
+  const BOM = '\uFEFF'; // UTF-8 BOM so Excel reads correctly
+  const rows=[['Block','Zone','Trade','Planned Start','Planned End',
+    'Revised Start','Revised End','% Complete','Status','Remarks','Updated At']];
   RAW.forEach(t=>{
     const st=getStatus(t)||{};
     rows.push([
-      t.block,t.zone,t.task,
-      t.start,t.end,
-      st.revisedStart||'',st.revisedEnd||'',
+      t.block, t.zone, t.task,
+      t.start, t.end,
+      st.revisedStart||'', st.revisedEnd||'',
       st.pct||0,
-      st.status||'',
+      st.status||'Not Started',
       st.remarks||'',
       st.updatedAt||''
     ]);
   });
-  const csv=rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='ERSS_TaktPlan_Status_'+df(new Date())+'.csv';
-  a.click();URL.revokeObjectURL(url);
+  const csv = BOM + rows.map(r=>
+    r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')
+  ).join('\r\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href=url; a.download='ERSS_TaktPlan_Status_'+df(new Date())+'.csv';
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('✓ Exported as CSV — open with Excel');
 }
 
 function importFile(inp){
@@ -1662,6 +1733,8 @@ function update(){
   }
 
   document.getElementById('hdr-active').textContent=active+' active';
+  const edl=document.getElementById('export-date-label');
+  if(edl) edl.textContent=fmtShort(addD(PLAN_START,dayIdx));
   document.getElementById('sc-active').textContent=active;
   document.getElementById('sc-done').textContent=done;
   document.getElementById('sc-delayed').textContent=delayed;
@@ -1715,15 +1788,25 @@ function switchTab(name,btn){
   if(name==='pmap') updatePilingMap(activeBlock);
   else update();
 }
-function switchBlock(blk,btn){
-  activeBlock=blk;
-  const key=blk.replace(' ','');
+function switchBlock(blk, btn){
+  activeBlock = blk;
+  const key = blk.replace(' ','');
   document.querySelectorAll('.pmap-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.pmap-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('pmap-'+key).classList.add('active');
+  const panel = document.getElementById('pmap-'+key);
+  if(panel) panel.classList.add('active');
   if(btn) btn.classList.add('active');
-  initOverlay(blk); // safe to call again — guards against re-init
+  initOverlay(blk);
   updatePilingMap(blk);
+  // Zone editor — sync active block
+  editBlock = blk;
+  if(editMode){
+    populateZoneSelect();
+    clearHandles();
+    editZone = null;
+    const cp = document.getElementById('zone-coord-panel');
+    if(cp) cp.classList.remove('active');
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -1736,16 +1819,20 @@ buildGantt();
 document.querySelectorAll('.pmap-canvas-wrap').forEach(w=>w.classList.add('view-overlay'));
 buildAllPdfCards();
 update();
+// Register all draggable elements AFTER badges and cards are built
+registerAllBadges();
+registerAllPdfCards();
+loadCardPositions();
 
 // ══════════════════════════════════════════════════════════════════════════════
 // ZONE EDITOR
 // ══════════════════════════════════════════════════════════════════════════════
-let editMode = false;
-let editBlock = 'Blk 6';  // current block being edited
-let editZone  = null;      // zone key currently selected
-let dragVtx   = null;      // {zoneKey, vtxIdx, startX, startY}
-let dragPoly  = null;      // {zoneKey, pts_start[], mouseStartX, mouseStartY}
-let selectedVtxIdx = -1;
+var editMode = false; // declared early via var at top
+var editBlock = 'Blk 6';  // current block being edited
+var editZone  = null;      // zone key currently selected
+var dragVtx   = null;      // {zoneKey, vtxIdx, startX, startY}
+var dragPoly  = null;      // {zoneKey, pts_start[], mouseStartX, mouseStartY}
+var selectedVtxIdx = -1;
 
 // Deep-clone originals for reset
 const ZONE_DEFS_DEFAULT = JSON.parse(JSON.stringify(ZONE_DEFS));
@@ -2077,7 +2164,7 @@ function deleteSelectedVertex(){
 
 function resetZoneToDefault(){
   if(!editZone||!editBlock) return;
-  const def = ZONE_DEFS_DEFAULT[editBlock]?.[editZone];
+  const def = ZONE_DEFS_DEFAULT[editBlock] && ZONE_DEFS_DEFAULT[editBlock][editZone];
   if(!def) return;
   ZONE_DEFS[editBlock][editZone] = {...def};
   updatePolyShape(editBlock, editZone);
@@ -2101,47 +2188,456 @@ function applyAndSaveZones(){
     // Re-render handles for current selection
     if(editZone && editBlock) renderHandles(editBlock, editZone);
   }
-  // Show toast
+  // Re-register draggables after overlay rebuild
+  setTimeout(()=>{ registerAllBadges(); registerAllPdfCards(); loadCardPositions(); }, 60);
   showToast('✓ Zone layout saved and applied');
 }
 
 // ── Export / Import zone defs ────────────────────────────────────────────────
-function exportZoneDefs(){
-  const out={};
-  Object.entries(ZONE_DEFS).forEach(([blk,zones])=>{
-    out[blk]={};
-    Object.entries(zones).forEach(([z,def])=>{
-      out[blk][z]={pts:def.pts, cx:def.cx, cy:def.cy, bc:def.bc};
+function exportZoneDefs(withOverlay){
+  if(withOverlay===undefined) withOverlay=true;
+  // Render each block's actual piling plan image + zone overlay onto canvas
+  // then stitch into a 2x2 grid overview — pure browser, zero CDN
+
+  const BLOCKS  = ['Blk 6','Blk 5','Blk 4','Blk 3'];
+  const cd      = addD(PLAN_START, dayIdx);
+  const dateStr = fmtD(cd);
+
+  const TRADE_HEX = {
+    'Excavation':            '#FF6B35',
+    'Lean Concrete/Cut Pile':'#E91E8C',
+    'Rebar Works':           '#00C4FF',
+    'Formwork':              '#A78BFA',
+    'Casting':               '#22D67A',
+  };
+  const TRADE_SHORT = {
+    'Excavation':'EXCAV','Lean Concrete/Cut Pile':'LEAN',
+    'Rebar Works':'REBAR','Formwork':'FORM','Casting':'CAST',
+  };
+
+  function hexRgba(hex, a){
+    const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }
+  function pts2arr(pts){
+    return pts.trim().split(/\s+/).map(p=>{const[x,y]=p.split(',').map(Number);return[x,y];});
+  }
+  function roundRect(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);
+    ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);
+    ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);
+    ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+
+  // Gather zone status for a given block+zone
+  function zoneStatus(blk, zone){
+    const zkey = blk.replace(' ','')+'-'+zone;
+    const zT   = byZone[zkey]||[];
+    const act  = zT.find(t=>{
+      const s=getStatus(t); if(s.status==='Completed') return false;
+      return cd>=effSD(t)&&cd<=effED(t);
     });
+    const lastEnd    = zT.reduce((mx,t)=>effED(t)>mx?effED(t):mx, new Date(0));
+    const firstStart = zT.reduce((mn,t)=>effSD(t)<mn?effSD(t):mn, new Date(9e15));
+    const allDone    = !act && zT.length>0 && cd>lastEnd;
+    const notStarted = cd < firstStart;
+    const isDly      = act&&(getStatus(act).status==='Delayed'||getStatus(act).status==='Blocked');
+    const st         = act?getStatus(act):{};
+    return {act, allDone, notStarted, isDly, st, firstStart, lastEnd, zT};
+  }
+
+  // Draw overlay zones on an existing canvas that already has the plan image
+  function drawZoneOverlay(ctx, W, H, blk){
+    const defs = ZONE_DEFS[blk]; if(!defs) return;
+    const activeTasks = [];
+
+    Object.entries(defs).forEach(([zone, def])=>{
+      const {act,allDone,notStarted,isDly,st,firstStart} = zoneStatus(blk, zone);
+      const pts = pts2arr(def.pts);
+
+      let fillHex, alpha, strokeHex, strokeW;
+      if(isDly)        { fillHex='#f59e0b'; alpha=0.45; strokeHex='#f59e0b'; strokeW=3; }
+      else if(act)     { fillHex=TRADE_HEX[act.task]||def.bc; alpha=0.45; strokeHex=fillHex; strokeW=3; }
+      else if(allDone) { fillHex='#22D67A'; alpha=0.22; strokeHex='#22D67A'; strokeW=1.5; }
+      else if(notStarted){ fillHex=def.bc||'#445566'; alpha=0.12; strokeHex=def.bc||'#667788'; strokeW=1; }
+      else             { fillHex='#00C4FF'; alpha=0.18; strokeHex='#00C4FF'; strokeW=1.5; }
+
+      // Zone fill
+      ctx.beginPath();
+      pts.forEach(([px,py],i)=>{
+        const cx=px/100*W, cy=py/100*H;
+        i===0?ctx.moveTo(cx,cy):ctx.lineTo(cx,cy);
+      });
+      ctx.closePath();
+      ctx.fillStyle   = hexRgba(fillHex, alpha);
+      ctx.strokeStyle = hexRgba(strokeHex, act||isDly?0.9:0.5);
+      ctx.lineWidth   = strokeW;
+      ctx.fill();
+      ctx.stroke();
+
+      // Animated-look: dashed border for delayed
+      if(isDly){
+        ctx.setLineDash([6,4]);
+        ctx.strokeStyle=hexRgba('#f59e0b',0.95);
+        ctx.lineWidth=2.5;
+        ctx.beginPath();
+        pts.forEach(([px,py],i)=>{
+          const cx=px/100*W, cy=py/100*H;
+          i===0?ctx.moveTo(cx,cy):ctx.lineTo(cx,cy);
+        });
+        ctx.closePath();
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      if(act) activeTasks.push({zone,def,act,isDly,st});
+    });
+
+    // ── Draw zone badges on top (after all polygons) ────────────────────────
+    Object.entries(defs).forEach(([zone, def])=>{
+      const {act,allDone,notStarted,isDly,st,firstStart} = zoneStatus(blk, zone);
+
+      const lcx = def.cx/100*W;
+      const lcy = def.cy/100*H;
+
+      const tradeLabel = act
+        ? (isDly ? '⚠ '+(TRADE_SHORT[act.task]||'?') : (TRADE_SHORT[act.task]||''))
+        : allDone ? '✓ DONE' : '';
+      const dateLabel  = act ? fmtShort(effSD(act))+'→'+fmtShort(effED(act)) : '';
+      const pctLabel   = act&&st.pct ? st.pct+'%':'';
+
+      // Measure text widths for badge sizing
+      ctx.font='bold 13px "Courier New",monospace';
+      const idW   = ctx.measureText('Zone '+zone).width;
+      ctx.font='bold 11px "Courier New",monospace';
+      const trW   = tradeLabel ? ctx.measureText(tradeLabel+(pctLabel?' '+pctLabel:'')).width : 0;
+      ctx.font='9px "Courier New",monospace';
+      const dtW   = dateLabel ? ctx.measureText(dateLabel).width : 0;
+
+      const bW = Math.max(idW, trW, dtW)+20;
+      const bH = tradeLabel ? (dateLabel?52:38) : 28;
+
+      // Badge shadow
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,0.85)'; ctx.shadowBlur=12;
+      ctx.fillStyle='rgba(4,8,16,0.90)';
+      roundRect(ctx, lcx-bW/2, lcy-bH/2, bW, bH, 6);
+      ctx.fill();
+      ctx.restore();
+
+      // Badge border
+      const borderCol = act ? (isDly?'#f59e0b':(TRADE_HEX[act.task]||'#888')) : allDone?'#22D67A':'rgba(255,255,255,0.2)';
+      ctx.strokeStyle = borderCol;
+      ctx.lineWidth   = act||allDone ? 2 : 0.8;
+      roundRect(ctx, lcx-bW/2, lcy-bH/2, bW, bH, 6);
+      ctx.stroke();
+
+      // Zone ID
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font='bold 13px "Courier New",monospace';
+      ctx.fillStyle='#e6edf3';
+      ctx.fillText('Zone '+zone, lcx, lcy - bH/2 + 13);
+
+      // Trade pill
+      if(tradeLabel){
+        const pillCol = isDly?'#f59e0b':(act?TRADE_HEX[act.task]:'#22D67A');
+        const pillY   = lcy - bH/2 + 24;
+        const pw      = bW-10;
+        roundRect(ctx, lcx-pw/2, pillY, pw, 16, 4);
+        ctx.fillStyle = pillCol; ctx.fill();
+        ctx.font='bold 11px "Courier New",monospace';
+        const tc = ['#00C4FF','#22D67A','#f59e0b','#eedc40','#22D67A'].includes(pillCol)?'#000':'#fff';
+        ctx.fillStyle = tc;
+        const fullLabel = pctLabel ? tradeLabel+' '+pctLabel : tradeLabel;
+        ctx.fillText(fullLabel, lcx, pillY+8);
+
+        if(dateLabel){
+          ctx.font='9px "Courier New",monospace';
+          ctx.fillStyle='rgba(210,225,240,0.85)';
+          ctx.fillText(dateLabel, lcx, pillY+24);
+        }
+      } else if(!act && notStarted){
+        ctx.font='10px "Courier New",monospace';
+        ctx.fillStyle='rgba(180,195,210,0.6)';
+        const fs = zoneStatus(blk,zone).firstStart;
+        if(fs && fs.getTime()<9e15)
+          ctx.fillText('Starts '+fmtShort(fs), lcx, lcy+2);
+      }
+    });
+  }
+
+
+  // ── Clean zone overlay: outlines + zone letters only, no status ─────────
+  function drawZoneClean(ctx, W, H, offsetY, blk){
+    const defs = ZONE_DEFS[blk]; if(!defs) return;
+
+    Object.entries(defs).forEach(([zone, def])=>{
+      const pts  = pts2arr(def.pts);
+      const col  = def.bc || '#667788';
+
+      // Very subtle fill
+      ctx.beginPath();
+      pts.forEach(([px,py],i)=>{
+        const cx=px/100*W, cy=offsetY+py/100*H;
+        i===0?ctx.moveTo(cx,cy):ctx.lineTo(cx,cy);
+      });
+      ctx.closePath();
+      ctx.fillStyle   = hexRgba(col, 0.08);
+      ctx.strokeStyle = hexRgba(col, 0.65);
+      ctx.lineWidth   = 1.5;
+      ctx.fill();
+      ctx.stroke();
+
+      // Zone label — simple, clean
+      const lcx = def.cx/100*W;
+      const lcy = offsetY + def.cy/100*H;
+
+      // Measure
+      ctx.font='bold 14px "Courier New",monospace';
+      const tw = ctx.measureText('Zone '+zone).width;
+      const bW = tw + 18, bH = 26;
+
+      // Badge
+      ctx.save();
+      ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=8;
+      ctx.fillStyle='rgba(4,8,16,0.82)';
+      roundRect(ctx, lcx-bW/2, lcy-bH/2, bW, bH, 5);
+      ctx.fill();
+      ctx.restore();
+
+      ctx.strokeStyle=hexRgba(col, 0.5); ctx.lineWidth=1;
+      roundRect(ctx, lcx-bW/2, lcy-bH/2, bW, bH, 5);
+      ctx.stroke();
+
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.font='bold 14px "Courier New",monospace';
+      ctx.fillStyle='#e6edf3';
+      ctx.fillText('Zone '+zone, lcx, lcy);
+    });
+  }
+
+  // ── Draw one complete block panel (image + overlay + title) ───────────────
+  function drawBlockPanel(blk, imgEl, W, H, withOverlay){
+    if(withOverlay===undefined) withOverlay=true;
+    const cv  = document.createElement('canvas');
+    cv.width  = W; cv.height = H;
+    const ctx = cv.getContext('2d');
+
+    const TITLE_H = 34;
+    const MAP_H   = H - TITLE_H - 24; // leave bottom margin for legend
+    const MAP_Y   = TITLE_H;
+
+    // Background
+    ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,H);
+
+    // Plan image (if available)
+    if(imgEl && imgEl.complete && imgEl.naturalWidth>0){
+      ctx.save();
+      ctx.globalAlpha = withOverlay ? 0.82 : 1.0;
+      ctx.drawImage(imgEl, 0, MAP_Y, W, MAP_H);
+      ctx.restore();
+    } else {
+      // Fallback grid if image not loaded
+      ctx.fillStyle='#111820'; ctx.fillRect(0, MAP_Y, W, MAP_H);
+      ctx.strokeStyle='#1e2a3a'; ctx.lineWidth=1;
+      for(let g=0;g<=10;g++){
+        ctx.beginPath(); ctx.moveTo(g/10*W, MAP_Y); ctx.lineTo(g/10*W, MAP_Y+MAP_H); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, MAP_Y+g/10*MAP_H); ctx.lineTo(W, MAP_Y+g/10*MAP_H); ctx.stroke();
+      }
+    }
+
+    // Zone overlays (only when withOverlay=true)
+    ctx.save();
+    ctx.rect(0, MAP_Y, W, MAP_H);
+    ctx.clip();
+    const defs = ZONE_DEFS[blk];
+    if(defs){
+      if(withOverlay){
+        // Full status overlay — coloured fills + task badges
+        const tmp = document.createElement('canvas');
+        tmp.width=W; tmp.height=MAP_H;
+        const tctx=tmp.getContext('2d');
+        drawZoneOverlay(tctx, W, MAP_H, blk);
+        ctx.drawImage(tmp, 0, MAP_Y);
+      } else {
+        // Clean mode — draw only subtle zone outlines + zone letter labels
+        drawZoneClean(ctx, W, MAP_H, MAP_Y, blk);
+      }
+    }
+    ctx.restore();
+
+    // Border round map area
+    ctx.strokeStyle='#263040'; ctx.lineWidth=1;
+    ctx.strokeRect(0, MAP_Y, W, MAP_H);
+
+    // Title bar
+    const g2=ctx.createLinearGradient(0,0,W,0);
+    g2.addColorStop(0,'#d97706'); g2.addColorStop(0.5,'#f59e0b'); g2.addColorStop(1,'#d97706');
+    ctx.fillStyle=g2; ctx.fillRect(0,0,W,TITLE_H);
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.font='bold 15px sans-serif'; ctx.fillStyle='#000';
+    ctx.fillText(blk.toUpperCase()+' — PILING PLAN', 12, TITLE_H/2);
+    ctx.font='bold 11px "Courier New",monospace'; ctx.fillStyle='#333';
+    ctx.textAlign='right';
+    ctx.fillText('As of '+dateStr, W-10, TITLE_H/2);
+
+    // Bottom status bar
+    // Status bar — only shown in overlay mode
+    if(!withOverlay){
+      ctx.fillStyle='rgba(13,17,23,0.85)'; ctx.fillRect(0, H-22, W, 22);
+      ctx.font='10px "Courier New",monospace'; ctx.fillStyle='#5a7090';
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(blk.toUpperCase()+' — PILING PLAN  |  '+Object.keys(ZONE_DEFS[blk]||{}).length+' Zones', 10, H-11);
+    }
+    const {act: anyAct} = (() => {
+      const defs=ZONE_DEFS[blk]||{};
+      let a=null;
+      Object.keys(defs).forEach(z=>{ if(!a){ const s=zoneStatus(blk,z); if(s.act) a=s.act; } });
+      return {act:a};
+    })();
+    const botY = H-22;
+    ctx.fillStyle='rgba(13,17,23,0.95)'; ctx.fillRect(0, botY, W, 22);
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.font='10px "Courier New",monospace'; ctx.fillStyle='#5a7090';
+
+    // Count zone statuses
+    const defs2=ZONE_DEFS[blk]||{};
+    let nActive=0, nDone=0, nPend=0, nDly=0;
+    Object.keys(defs2).forEach(z=>{
+      const s=zoneStatus(blk,z);
+      if(s.isDly) nDly++;
+      else if(s.act) nActive++;
+      else if(s.allDone) nDone++;
+      else nPend++;
+    });
+    const parts=[];
+    if(nActive) parts.push({t:nActive+' Active', c:'#E91E8C'});
+    if(nDone)   parts.push({t:nDone+' Done',     c:'#22D67A'});
+    if(nDly)    parts.push({t:nDly+' Delayed',   c:'#f59e0b'});
+    if(nPend)   parts.push({t:nPend+' Pending',  c:'#5a7090'});
+
+    let bx=10;
+    parts.forEach(({t,c})=>{
+      ctx.fillStyle=c; ctx.font='bold 10px "Courier New",monospace';
+      ctx.fillText(t, bx, botY+11);
+      bx+=ctx.measureText(t).width+16;
+    });
+
+    return cv;
+  }
+
+  // ── Legend canvas ─────────────────────────────────────────────────────────
+  function drawLegend(W, H){
+    const cv=document.createElement('canvas');
+    cv.width=W; cv.height=H;
+    const ctx=cv.getContext('2d');
+    ctx.fillStyle='#0b0f14'; ctx.fillRect(0,0,W,H);
+
+    const items=[
+      {l:'Excavation',       c:'#FF6B35'},
+      {l:'Lean Concrete/Cut',c:'#E91E8C'},
+      {l:'Rebar Works',      c:'#00C4FF'},
+      {l:'Formwork',         c:'#A78BFA'},
+      {l:'Casting',          c:'#22D67A'},
+      {l:'Completed',        c:'#22D67A', alpha:0.35},
+      {l:'Delayed',          c:'#f59e0b'},
+      {l:'Pending',          c:'#445566'},
+    ];
+
+    ctx.font='bold 11px sans-serif'; ctx.fillStyle='#f59e0b';
+    ctx.textBaseline='middle'; ctx.textAlign='left';
+    ctx.fillText('LEGEND:', 12, H/2);
+
+    let lx=80;
+    ctx.font='11px sans-serif';
+    items.forEach(({l,c,alpha})=>{
+      // Swatch
+      ctx.fillStyle=alpha?`rgba(${parseInt(c.slice(1,3),16)},${parseInt(c.slice(3,5),16)},${parseInt(c.slice(5,7),16)},${alpha})`:c;
+      roundRect(ctx,lx,H/2-6,14,12,2); ctx.fill();
+      ctx.strokeStyle=c; ctx.lineWidth=1;
+      roundRect(ctx,lx,H/2-6,14,12,2); ctx.stroke();
+      ctx.fillStyle='#c0ccd8'; ctx.fillText(l, lx+18, H/2);
+      lx+=18+ctx.measureText(l).width+16;
+    });
+    return cv;
+  }
+
+  // ── Compose final image ───────────────────────────────────────────────────
+  const BLK_IDS = {'Blk 6':'Blk6','Blk 5':'Blk5','Blk 4':'Blk4','Blk 3':'Blk3'};
+  const BW=960, BH=540;
+  const PAD=14, LEG_H=38, HDR_H=60;
+  const totalW = PAD*3+BW*2;
+  const totalH = HDR_H+PAD*3+BH*2+LEG_H+PAD;
+
+  const master=document.createElement('canvas');
+  master.width =totalW;
+  master.height=totalH;
+  const ctx=master.getContext('2d');
+
+  // Background
+  const bg=ctx.createLinearGradient(0,0,0,totalH);
+  bg.addColorStop(0,'#0d1117'); bg.addColorStop(1,'#0b0f14');
+  ctx.fillStyle=bg; ctx.fillRect(0,0,totalW,totalH);
+
+  // Header
+  ctx.font='bold 28px sans-serif'; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  ctx.fillText('ERSS TAKT PLAN — SITE ZONE STATUS MAP', PAD, 38);
+  ctx.font='13px "Courier New",monospace'; ctx.fillStyle='#5a7090';
+  ctx.fillText('SKWPBD · Blk 3–6 · Generated '+new Date().toLocaleDateString('en-GB')+
+    ' · Playhead: '+dateStr, PAD, 58);
+
+  const positions=[
+    {blk:'Blk 6',x:PAD,       y:HDR_H+PAD},
+    {blk:'Blk 5',x:PAD*2+BW,  y:HDR_H+PAD},
+    {blk:'Blk 4',x:PAD,       y:HDR_H+PAD*2+BH},
+    {blk:'Blk 3',x:PAD*2+BW,  y:HDR_H+PAD*2+BH},
+  ];
+
+  // Get image elements
+  const imgs={
+    'Blk 6': document.getElementById('img-Blk6'),
+    'Blk 5': document.getElementById('img-Blk5'),
+    'Blk 4': document.getElementById('img-Blk4'),
+    'Blk 3': document.getElementById('img-Blk3'),
+  };
+
+  positions.forEach(({blk,x,y})=>{
+    const cv=drawBlockPanel(blk, imgs[blk], BW, BH, withOverlay);
+    ctx.drawImage(cv, x, y);
   });
-  const blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download='ERSS_ZoneDefs.json';a.click();
-  URL.revokeObjectURL(url);
-  showToast('Zone definitions exported');
+
+  // Legend
+  const legCV=drawLegend(totalW, LEG_H);
+  ctx.drawImage(legCV, 0, HDR_H+PAD*3+BH*2);
+
+  // Download
+  master.toBlob(blob=>{
+    if(!blob){ showToast('Export failed'); return; }
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;
+    a.download='ERSS_'+(withOverlay?'StatusMap':'CleanPlan')+'_'+df(new Date())+'.png';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ '+(withOverlay?'Status map':'Clean plan')+' exported — '+totalW+'×'+totalH+'px');
+  },'image/png');
 }
 
-function importZoneDefs(inp){
-  const file=inp.files[0];
-  if(!file) return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const data=JSON.parse(e.target.result);
-      Object.entries(data).forEach(([blk,zones])=>{
-        if(!ZONE_DEFS[blk]) return;
-        Object.entries(zones).forEach(([z,def])=>{
-          if(ZONE_DEFS[blk][z] && def.pts) ZONE_DEFS[blk][z]={...ZONE_DEFS[blk][z],...def};
-        });
-      });
-      applyAndSaveZones();
-      showToast('Zone definitions imported');
-    }catch(err){alert('Invalid zone JSON file: '+err.message)}
-  };
-  reader.readAsText(file);
-  inp.value='';
-}
+
+
+// (removed - no longer used)
+
+
+// (removed - no longer used)
+
 
 // ── Toast notification ───────────────────────────────────────────────────────
 function showToast(msg){
@@ -2159,17 +2655,7 @@ function showToast(msg){
 }
 
 // Patch switchBlock to also update zone-select if in edit mode
-const _origSwitchBlock = switchBlock;
-function switchBlock(blk, btn){
-  _origSwitchBlock(blk, btn);
-  editBlock = blk;
-  if(editMode){
-    populateZoneSelect();
-    clearHandles();
-    editZone = null;
-    document.getElementById('zone-coord-panel').classList.remove('active');
-  }
-}
+// (switchBlock zone-editor logic merged into original)
 
 
 
@@ -2195,6 +2681,990 @@ function clearAllStatus(){
   RAW.forEach(t => setStatus(t, {}));
   update();
   showToast('All statuses cleared');
+}
+
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// DRAGGABLE ZONE CARDS — robust single-listener implementation
+// ══════════════════════════════════════════════════════════════════════════════
+// cardOffsets and _drag declared at top of script
+
+function getOffset(blk, zone){
+  if(!blk||!zone) return {dx:0,dy:0};
+  if(!cardOffsets[blk]) cardOffsets[blk]={};
+  if(!cardOffsets[blk][zone]) cardOffsets[blk][zone]={dx:0,dy:0};
+  return cardOffsets[blk][zone];
+}
+
+function positionCard(el, blk, zone){
+  if(!el||!blk||!zone) return;
+  const ocx = parseFloat(el.dataset.ocx);
+  const ocy = parseFloat(el.dataset.ocy);
+  if(isNaN(ocx)||isNaN(ocy)) return;
+  const off = getOffset(blk, zone);
+  el.style.left = (ocx + off.dx) + '%';
+  el.style.top  = (ocy + off.dy) + '%';
+}
+
+function updateTether(blk, zone){
+  if(!blk||!zone) return;
+  const key  = blk.replace(' ','');
+  const wrap = document.getElementById('wrap-'+key);
+  if(!wrap) return;
+  const def = ZONE_DEFS[blk] && ZONE_DEFS[blk][zone];
+  if(!def) return;
+  const off = getOffset(blk, zone);
+  const id  = 'tether-'+key+'-'+zone;
+  if(Math.abs(off.dx)<0.5 && Math.abs(off.dy)<0.5){
+    const old = document.getElementById(id); if(old) old.remove(); return;
+  }
+  let svg = document.getElementById(id);
+  if(!svg){
+    svg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    svg.id = id;
+    svg.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:8;overflow:visible';
+    svg.setAttribute('viewBox','0 0 100 100');
+    svg.setAttribute('preserveAspectRatio','none');
+    wrap.appendChild(svg);
+  }
+  const ox=def.cx, oy=def.cy, cx2=ox+off.dx, cy2=oy+off.dy;
+  svg.innerHTML =
+    '<line x1="'+ox+'" y1="'+oy+'" x2="'+cx2+'" y2="'+cy2+
+    '" stroke="rgba(255,255,255,0.45)" stroke-width="0.5" stroke-dasharray="1.5 1.5"/>' +
+    '<circle cx="'+ox+'" cy="'+oy+'" r="0.9" fill="rgba(255,255,255,0.65)"/>';
+}
+
+// Mark an element as draggable via data attributes (no per-element listeners)
+function registerDraggable(el, blk, zone, ocx, ocy){
+  if(!el||!blk||!zone||isNaN(ocx)||isNaN(ocy)) return;
+  el.dataset.draggable = '1';
+  el.dataset.blk  = blk;
+  el.dataset.zone = zone;
+  el.dataset.ocx  = ocx;
+  el.dataset.ocy  = ocy;
+  positionCard(el, blk, zone);
+}
+
+// Find nearest draggable ancestor — safe for SVG nodes that have no .dataset
+function _findDraggable(target){
+  let el = target;
+  let limit = 10; // max levels up
+  while(el && limit-- > 0){
+    // SVG elements and some others don't support dataset — skip safely
+    try {
+      if(el.dataset && el.dataset.draggable) return el;
+    } catch(e){ /* SVGElement.dataset access error — skip */ }
+    el = el.parentElement;
+  }
+  return null;
+}
+
+function _onDragStart(e){
+  // Ignore if inside zone editor (vertex handles, polygon edit)
+  if(editMode) return;
+  // Ignore non-primary buttons
+  if(e.button !== undefined && e.button !== 0) return;
+  // Ignore form elements
+  const tag = e.target && e.target.tagName;
+  if(tag==='INPUT'||tag==='BUTTON'||tag==='SELECT'||tag==='TEXTAREA') return;
+
+  const el = _findDraggable(e.target);
+  if(!el) return;
+
+  const blk  = el.dataset.blk;
+  const zone = el.dataset.zone;
+  if(!blk || !zone) return;
+
+  const key  = blk.replace(' ','');
+  const wrap = document.getElementById('wrap-'+key);
+  if(!wrap) return;
+
+  const rect = wrap.getBoundingClientRect();
+  if(!rect || rect.width===0) return; // panel is hidden
+
+  const client = e.touches ? e.touches[0] : e;
+  const off    = getOffset(blk, zone);
+
+  _drag = {
+    el, blk, zone, wrap,
+    startMX: client.clientX,
+    startMY: client.clientY,
+    startDX: off.dx,
+    startDY: off.dy,
+  };
+
+  el.style.zIndex     = '80';
+  el.style.cursor     = 'grabbing';
+  el.style.transition = 'none';
+  el.classList.add('dragging');
+  e.preventDefault();
+  e.stopPropagation();
+}
+
+function _onDragMove(e){
+  if(!_drag) return;
+  const client = e.touches ? e.touches[0] : e;
+  const rect   = _drag.wrap.getBoundingClientRect();
+  if(!rect || rect.width===0) return;
+  const dxPct  = (client.clientX - _drag.startMX) / rect.width  * 100;
+  const dyPct  = (client.clientY - _drag.startMY) / rect.height * 100;
+  const newDX  = _drag.startDX + dxPct;
+  const newDY  = _drag.startDY + dyPct;
+  const ocx    = parseFloat(_drag.el.dataset.ocx);
+  const ocy    = parseFloat(_drag.el.dataset.ocy);
+  if(isNaN(ocx)||isNaN(ocy)) return;
+  cardOffsets[_drag.blk][_drag.zone] = {dx:newDX, dy:newDY};
+  _drag.el.style.left = (ocx + newDX) + '%';
+  _drag.el.style.top  = (ocy + newDY) + '%';
+  updateTether(_drag.blk, _drag.zone);
+  e.preventDefault();
+}
+
+function _onDragEnd(e){
+  if(!_drag) return;
+  _drag.el.style.zIndex     = '';
+  _drag.el.style.cursor     = 'grab';
+  _drag.el.style.transition = '';
+  _drag.el.classList.remove('dragging');
+  updateTether(_drag.blk, _drag.zone);
+  _drag = null;
+}
+
+// Use bubbling (not capture) so stopPropagation in child handlers works
+document.addEventListener('mousedown',  _onDragStart);
+document.addEventListener('touchstart', _onDragStart, {passive:false});
+document.addEventListener('mousemove',  _onDragMove,  {passive:false});
+document.addEventListener('touchmove',  _onDragMove,  {passive:false});
+document.addEventListener('mouseup',    _onDragEnd);
+document.addEventListener('touchend',   _onDragEnd);
+
+// Register all overlay badges
+function registerAllBadges(){
+  ['Blk 6','Blk 5','Blk 4','Blk 3'].forEach(blk=>{
+    const key  = blk.replace(' ','');
+    const defs = ZONE_DEFS[blk]; if(!defs) return;
+    Object.entries(defs).forEach(([zone, def])=>{
+      const el = document.getElementById('badge-'+key+'-'+zone);
+      registerDraggable(el, blk, zone, def.cx, def.cy);
+    });
+  });
+}
+
+// Register all PDF mode cards
+function registerAllPdfCards(){
+  ['Blk 6','Blk 5','Blk 4','Blk 3'].forEach(blk=>{
+    const key = blk.replace(' ','');
+    const pos = PDF_ZONE_POS[blk]; if(!pos) return;
+    const defs = ZONE_DEFS[blk];  if(!defs) return;
+    Object.keys(defs).forEach(zone=>{
+      const p  = pos[zone]; if(!p) return;
+      const el = document.getElementById('pdfcard-'+key+'-'+zone);
+      registerDraggable(el, blk, zone, p[0], p[1]);
+    });
+  });
+}
+
+// ── Reset / Save / Load ──────────────────────────────────────────────────────
+function resetCardPositions(){
+  cardOffsets = {};
+  document.querySelectorAll('[data-draggable="1"]').forEach(el=>{
+    const ocx = el.dataset.ocx, ocy = el.dataset.ocy;
+    if(ocx !== undefined) el.style.left = ocx + '%';
+    if(ocy !== undefined) el.style.top  = ocy + '%';
+  });
+  document.querySelectorAll('[id^="tether-"]').forEach(e=>e.remove());
+  showToast('Card positions reset');
+}
+
+function saveCardPositions(){
+  try{
+    localStorage.setItem('erss_card_offsets', JSON.stringify(cardOffsets));
+    showToast('💾 Card layout saved');
+  }catch(e){ showToast('Save failed: '+e.message); }
+}
+
+function loadCardPositions(){
+  try{
+    const s = localStorage.getItem('erss_card_offsets');
+    if(!s) return;
+    const loaded = JSON.parse(s);
+    if(typeof loaded !== 'object' || !loaded) return;
+    cardOffsets = loaded;
+    document.querySelectorAll('[data-draggable="1"]').forEach(el=>{
+      const blk = el.dataset.blk, zone = el.dataset.zone;
+      if(!blk||!zone) return;
+      positionCard(el, blk, zone);
+      updateTether(blk, zone);
+    });
+  }catch(err){ console.warn('loadCardPositions error:', err); }
+}
+
+
+
+// ── Zone Status Canvas Export ─────────────────────────────────────────────────
+function exportZoneStatus(){
+  const cd      = addD(PLAN_START, dayIdx);
+  const dateStr = fmtD(cd);
+
+  const TRADE_HEX = {
+    'Excavation':            '#FF6B35',
+    'Lean Concrete/Cut Pile':'#E91E8C',
+    'Rebar Works':           '#00C4FF',
+    'Formwork':              '#A78BFA',
+    'Casting':               '#22D67A',
+  };
+  const TRADE_SHORT = {
+    'Excavation':'EXCAV','Lean Concrete/Cut Pile':'LEAN',
+    'Rebar Works':'REBAR','Formwork':'FORM','Casting':'CAST',
+  };
+  const STATUS_COLOR = {
+    'active':'#E91E8C', 'done':'#22D67A', 'delayed':'#F59E0B',
+    'pending':'#5a7090','partial':'#00C4FF',
+  };
+
+  // ── Layout constants ──────────────────────────────────────────────────────
+  const PAD    = 24;
+  const HDR_H  = 72;   // title area
+  const SUM_H  = 64;   // summary strip
+  const LEG_H  = 36;   // legend
+  const BLK_GAP= 12;
+  const ZONE_H = 44;   // height per zone row
+  const ZONE_PAD = 10;
+  const BLK_HDR_H = 32;
+  const BLK_PAD = 16;
+
+  // Calculate block heights
+  const BLOCKS = ['Blk 6','Blk 5','Blk 4','Blk 3'];
+  const blkZones = {};
+  BLOCKS.forEach(b => { blkZones[b] = zonesOf[b] || []; });
+
+  // Two-column layout
+  const COL_W = 520;
+  const totalW = PAD*3 + COL_W*2;
+
+  // Left col: Blk6 + Blk4, Right col: Blk5 + Blk3
+  const leftBlks  = ['Blk 6','Blk 4'];
+  const rightBlks = ['Blk 5','Blk 3'];
+
+  function blkH(blk){
+    return BLK_HDR_H + BLK_PAD + blkZones[blk].length*(ZONE_H+4) + BLK_PAD;
+  }
+  const leftH  = leftBlks.reduce((s,b)=>s+blkH(b)+BLK_GAP, 0);
+  const rightH = rightBlks.reduce((s,b)=>s+blkH(b)+BLK_GAP, 0);
+  const colH   = Math.max(leftH, rightH);
+  const totalH = HDR_H + SUM_H + colH + LEG_H + PAD*2;
+
+  const cv  = document.createElement('canvas');
+  cv.width  = totalW;
+  cv.height = totalH;
+  const ctx = cv.getContext('2d');
+
+  // ── Background ───────────────────────────────────────────────────────────
+  ctx.fillStyle = '#0b0f14';
+  ctx.fillRect(0,0,totalW,totalH);
+
+  // ── Header ────────────────────────────────────────────────────────────────
+  const hg = ctx.createLinearGradient(0,0,totalW,0);
+  hg.addColorStop(0,'#131920'); hg.addColorStop(1,'#1a2230');
+  ctx.fillStyle = hg; ctx.fillRect(0,0,totalW,HDR_H);
+  ctx.strokeStyle='#263040'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,HDR_H); ctx.lineTo(totalW,HDR_H); ctx.stroke();
+
+  ctx.font='bold 22px sans-serif'; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('ERSS TAKT PLAN — ZONE STATUS REPORT', PAD, HDR_H*0.38);
+  ctx.font='13px "Courier New",monospace'; ctx.fillStyle='#7a9ab8';
+  ctx.fillText('SKWPBD · Blk 3–6 · 21 Zones · 5 Trades', PAD, HDR_H*0.68);
+
+  // Date badge (right)
+  const dbW=160, dbH=38;
+  const dbX=totalW-PAD-dbW, dbY=(HDR_H-dbH)/2;
+  ctx.fillStyle='rgba(245,158,11,0.12)'; ctx.strokeStyle='rgba(245,158,11,0.5)'; ctx.lineWidth=1.5;
+  rr(ctx,dbX,dbY,dbW,dbH,6); ctx.fill(); ctx.stroke();
+  ctx.font='bold 15px "Courier New",monospace'; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='center'; ctx.fillText(dateStr, dbX+dbW/2, dbY+14);
+  ctx.font='10px sans-serif'; ctx.fillStyle='#7a9ab8';
+  ctx.fillText('Playhead Date', dbX+dbW/2, dbY+28);
+
+  // ── Summary strip ─────────────────────────────────────────────────────────
+  // Count global totals
+  let gActive=0,gDone=0,gDelay=0,gPend=0;
+  BLOCKS.forEach(b=>{
+    (blkZones[b]||[]).forEach(z=>{
+      const key=b.replace(' ','')+'-'+z;
+      const zT=byZone[key]||[];
+      const act=zT.find(t=>{const s=getStatus(t);if(s.status==='Completed')return false;return cd>=effSD(t)&&cd<=effED(t);});
+      const last=zT.reduce((mx,t)=>effED(t)>mx?effED(t):mx,new Date(0));
+      const first=zT.reduce((mn,t)=>effSD(t)<mn?effSD(t):mn,new Date(9e15));
+      const done=(!act&&cd>last&&zT.length>0)||zT.every(t=>getStatus(t).status==='Completed');
+      const dly=act&&(getStatus(act).status==='Delayed'||getStatus(act).status==='Blocked');
+      if(dly) gDelay++;
+      else if(act) gActive++;
+      else if(done) gDone++;
+      else gPend++;
+    });
+  });
+
+  const sumY = HDR_H+4;
+  const sumCards=[
+    {l:'ACTIVE',   v:gActive, c:'#E91E8C'},
+    {l:'COMPLETED',v:gDone,   c:'#22D67A'},
+    {l:'DELAYED',  v:gDelay,  c:'#F59E0B'},
+    {l:'PENDING',  v:gPend,   c:'#7a9ab8'},
+    {l:'TOTAL',    v:21,      c:'#dde6f3'},
+  ];
+  const scW=(totalW-PAD*2)/sumCards.length-6;
+  sumCards.forEach(({l,v,c},i)=>{
+    const sx=PAD+i*(scW+6), sy=sumY+4;
+    ctx.fillStyle='#131920'; ctx.strokeStyle='#263040'; ctx.lineWidth=1;
+    rr(ctx,sx,sy,scW,SUM_H-8,5); ctx.fill(); ctx.stroke();
+    ctx.textAlign='center';
+    ctx.font='bold 26px "Courier New",monospace'; ctx.fillStyle=c;
+    ctx.fillText(v, sx+scW/2, sy+30);
+    ctx.font='bold 9px sans-serif'; ctx.fillStyle='#7a9ab8';
+    ctx.fillText(l, sx+scW/2, sy+48);
+  });
+
+  // ── Draw block columns ────────────────────────────────────────────────────
+  function drawBlock(blk, x, y){
+    const zones = blkZones[blk]||[];
+    const bH    = blkH(blk);
+
+    // Block background
+    ctx.fillStyle='#131920'; ctx.strokeStyle='#263040'; ctx.lineWidth=1;
+    rr(ctx,x,y,COL_W,bH,6); ctx.fill(); ctx.stroke();
+
+    // Block header
+    const bhg=ctx.createLinearGradient(x,y,x+COL_W,y);
+    bhg.addColorStop(0,'#1e2a3c'); bhg.addColorStop(1,'#162030');
+    ctx.fillStyle=bhg; rr(ctx,x,y,COL_W,BLK_HDR_H,6); ctx.fill();
+    ctx.strokeStyle='#2d3e54'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(x,y+BLK_HDR_H); ctx.lineTo(x+COL_W,y+BLK_HDR_H); ctx.stroke();
+
+    // Block badge
+    ctx.fillStyle='#f59e0b';
+    rr(ctx,x+10,y+7,54,18,3); ctx.fill();
+    ctx.font='bold 10px sans-serif'; ctx.fillStyle='#000';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(blk.toUpperCase(), x+37, y+16);
+    ctx.font='bold 13px sans-serif'; ctx.fillStyle='#dde6f3'; ctx.textAlign='left';
+    ctx.fillText('Block '+blk.slice(-1)+' Piling Plan  ·  '+zones.length+' Zones', x+72, y+16);
+
+    // Zone rows
+    zones.forEach((z,zi)=>{
+      const zy = y + BLK_HDR_H + BLK_PAD + zi*(ZONE_H+4);
+      const zkey = blk.replace(' ','')+'-'+z;
+      const zT   = byZone[zkey]||[];
+
+      // Determine overall zone state
+      const act = zT.find(t=>{const s=getStatus(t);if(s.status==='Completed')return false;return cd>=effSD(t)&&cd<=effED(t);});
+      const last = zT.reduce((mx,t)=>effED(t)>mx?effED(t):mx,new Date(0));
+      const first= zT.reduce((mn,t)=>effSD(t)<mn?effSD(t):mn,new Date(9e15));
+      const done = (!act&&cd>last&&zT.length>0)||zT.every(t=>getStatus(t).status==='Completed');
+      const dly  = act&&(getStatus(act).status==='Delayed'||getStatus(act).status==='Blocked');
+      const notS = cd<first;
+      const st   = act?getStatus(act):{};
+
+      // Row background
+      const rowBg = act? (dly?'rgba(245,158,11,0.08)':'rgba(233,30,140,0.06)')
+                       : done?'rgba(34,214,122,0.05)':'rgba(255,255,255,0.015)';
+      ctx.fillStyle=rowBg;
+      rr(ctx,x+8,zy,COL_W-16,ZONE_H,4); ctx.fill();
+
+      // Left accent bar
+      const accentC = dly?'#F59E0B':act?TRADE_HEX[act.task]||'#888':done?'#22D67A':'#263040';
+      ctx.fillStyle=accentC; ctx.fillRect(x+8,zy,3,ZONE_H);
+
+      // Zone letter badge
+      ctx.fillStyle='rgba(255,255,255,0.06)'; ctx.strokeStyle='rgba(255,255,255,0.12)'; ctx.lineWidth=1;
+      rr(ctx,x+14,zy+8,28,28,4); ctx.fill(); ctx.stroke();
+      ctx.font='bold 14px "Courier New",monospace'; ctx.fillStyle='#dde6f3';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(z, x+28, zy+22);
+
+      // Zone name
+      ctx.font='bold 12px sans-serif'; ctx.fillStyle='#c8d8e8'; ctx.textAlign='left';
+      ctx.fillText('Zone '+z, x+48, zy+13);
+
+      // Trade segments bar
+      const barX=x+48, barY=zy+22, barW=COL_W-130, barH=14;
+      ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=1;
+      rr(ctx,barX,barY,barW,barH,3); ctx.fill(); ctx.stroke();
+
+      // Draw task segments proportionally
+      const allStart = zT.length?diff(PLAN_START,zT.reduce((mn,t)=>effSD(t)<mn?effSD(t):mn,new Date(9e15))):0;
+      const allEnd   = zT.length?diff(PLAN_START,zT.reduce((mx,t)=>effED(t)>mx?effED(t):mx,new Date(0))):1;
+      const span     = Math.max(1, allEnd-allStart);
+      let segX = barX;
+      zT.forEach(t=>{
+        const ts=diff(PLAN_START,effSD(t)), te=diff(PLAN_START,effED(t));
+        const sw = Math.max(2, (te-ts+1)/span*barW);
+        const s2=getStatus(t);
+        const isA=cd>=effSD(t)&&cd<=effED(t)&&s2.status!=='Completed';
+        const isD=s2.status==='Completed'||(!isA&&cd>effED(t));
+        const isDelay=s2.status==='Delayed'||s2.status==='Blocked';
+        const c=isDelay?'#F59E0B':(TRADE_HEX[t.task]||'#888');
+        ctx.fillStyle=isD?hexAStr(c,0.3):isA?c:hexAStr(c,0.45);
+        // Clip to bar bounds
+        const rx=Math.min(segX,barX+barW), rw=Math.min(sw,barX+barW-segX);
+        if(rw>0) ctx.fillRect(rx,barY+1,rw-1,barH-2);
+        segX+=sw;
+      });
+
+      // Right side: current task + status
+      const rtX = barX+barW+8;
+      if(act){
+        const col=dly?'#F59E0B':(TRADE_HEX[act.task]||'#888');
+        const lbl=dly?'⚠ '+(TRADE_SHORT[act.task]||''):(TRADE_SHORT[act.task]||act.task);
+        const pctStr=st.pct?' '+st.pct+'%':'';
+        ctx.fillStyle=hexAStr(col,0.18); ctx.strokeStyle=hexAStr(col,0.5); ctx.lineWidth=1;
+        rr(ctx,rtX,zy+4,COL_W-rtX-18+x,ZONE_H-8,4); ctx.fill(); ctx.stroke();
+        ctx.font='bold 10px "Courier New",monospace'; ctx.fillStyle=col;
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(lbl+pctStr, x+COL_W-36, zy+14);
+        ctx.font='9px "Courier New",monospace'; ctx.fillStyle='#a0b8d0';
+        ctx.fillText(fmtShort(effSD(act))+'→'+fmtShort(effED(act)), x+COL_W-36, zy+28);
+      } else if(done){
+        ctx.font='bold 11px "Courier New",monospace'; ctx.fillStyle='#22D67A';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('✓ DONE', x+COL_W-36, zy+22);
+      } else if(notS){
+        ctx.font='bold 9px "Courier New",monospace'; ctx.fillStyle='#7a9ab8';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(fmtShort(first), x+COL_W-36, zy+22);
+      } else {
+        ctx.font='9px "Courier New",monospace'; ctx.fillStyle='#00C4FF';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText('IN PROG', x+COL_W-36, zy+22);
+      }
+    });
+    return bH;
+  }
+
+  // Draw columns
+  let ly = HDR_H+SUM_H+PAD;
+  leftBlks.forEach(b=>{
+    const h=drawBlock(b, PAD, ly); ly+=h+BLK_GAP;
+  });
+  let ry = HDR_H+SUM_H+PAD;
+  rightBlks.forEach(b=>{
+    const h=drawBlock(b, PAD*2+COL_W, ry); ry+=h+BLK_GAP;
+  });
+
+  // ── Legend ────────────────────────────────────────────────────────────────
+  const legY = totalH-LEG_H;
+  ctx.fillStyle='#131920'; ctx.fillRect(0,legY,totalW,LEG_H);
+  ctx.strokeStyle='#263040'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,legY); ctx.lineTo(totalW,legY); ctx.stroke();
+
+  const tradeItems=[
+    {l:'Excavation',c:'#FF6B35'},{l:'Lean Concrete/Cut Pile',c:'#E91E8C'},
+    {l:'Rebar Works',c:'#00C4FF'},{l:'Formwork',c:'#A78BFA'},
+    {l:'Casting',c:'#22D67A'},{l:'Done',c:'#22D67A',dim:true},
+    {l:'Delayed',c:'#F59E0B'},{l:'Pending',c:'#5a7090'},
+  ];
+  ctx.font='11px sans-serif'; ctx.textBaseline='middle';
+  let lx=PAD;
+  ctx.font='bold 10px sans-serif'; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='left'; ctx.fillText('LEGEND:', lx, legY+LEG_H/2); lx+=60;
+  tradeItems.forEach(({l,c,dim})=>{
+    ctx.fillStyle=dim?hexAStr(c,0.35):c;
+    rr(ctx,lx,legY+LEG_H/2-6,14,12,2); ctx.fill();
+    ctx.strokeStyle=c; ctx.lineWidth=1; rr(ctx,lx,legY+LEG_H/2-6,14,12,2); ctx.stroke();
+    ctx.font='10px sans-serif'; ctx.fillStyle='#c0d0e0'; ctx.textAlign='left';
+    ctx.fillText(l, lx+17, legY+LEG_H/2);
+    lx+=17+ctx.measureText(l).width+14;
+  });
+
+  // ── Download ──────────────────────────────────────────────────────────────
+  cv.toBlob(blob=>{
+    if(!blob){ showToast('Export failed'); return; }
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='ERSS_ZoneStatus_'+df(new Date())+'.png';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ Zone Status exported — '+totalW+'×'+totalH+'px');
+  },'image/png');
+}
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function hexAStr(hex,a){
+  try{
+    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+    return `rgba(${r},${g},${b},${a})`;
+  }catch(e){return hex;}
+}
+function rr(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
+}
+
+
+// ── Export full Takt Schedule as PNG ─────────────────────────────────────────
+function exportGanttPng(){
+  const cd = addD(PLAN_START, dayIdx);
+
+  // ── Constants (match screen layout but scaled up for print quality) ───────
+  const SCALE   = 2;          // 2× for retina/print quality
+  const CW      = 26 * SCALE; // cell width per day
+  const LW      = 160 * SCALE;// label column width
+  const ROW_H   = 32 * SCALE; // zone row height
+  const BLK_H   = 30 * SCALE; // block header height
+  const HDR_H   = 44 * SCALE; // date header height
+  const TITLE_H = 56 * SCALE; // title bar height
+  const LEG_H   = 38 * SCALE; // legend strip height
+  const PAD     = 16 * SCALE;
+
+  const TOTAL_COLS = TOTAL_DAYS + 1;
+  const totalW = LW + CW * TOTAL_COLS;
+
+  // Count rows: title + hdr + legend + per-block (blk_hdr + zones*row)
+  const ALL_ZONES = {
+    'Blk 6': zonesOf['Blk 6']||[],
+    'Blk 5': zonesOf['Blk 5']||[],
+    'Blk 4': zonesOf['Blk 4']||[],
+    'Blk 3': zonesOf['Blk 3']||[],
+  };
+  const BLOCKS = ['Blk 6','Blk 5','Blk 4','Blk 3'];
+  let contentH = 0;
+  BLOCKS.forEach(b => { contentH += BLK_H + ALL_ZONES[b].length * ROW_H; });
+  const totalH = TITLE_H + HDR_H + contentH + LEG_H + PAD;
+
+  const cv  = document.createElement('canvas');
+  cv.width  = totalW;
+  cv.height = totalH;
+  const ctx = cv.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+
+  const F = SCALE; // font scale helper — multiply all font sizes by this
+
+  // ── Colour helpers ────────────────────────────────────────────────────────
+  const TRADE_HEX = {
+    'Excavation':            '#FF6B35',
+    'Lean Concrete/Cut Pile':'#E91E8C',
+    'Rebar Works':           '#00C4FF',
+    'Formwork':              '#A78BFA',
+    'Casting':               '#22D67A',
+  };
+  const TRADE_KEY = {
+    'Excavation':'excav','Lean Concrete/Cut Pile':'lean',
+    'Rebar Works':'rebar','Formwork':'form','Casting':'cast',
+  };
+  const TRADE_SHORT = {
+    'Excavation':'EXCAV','Lean Concrete/Cut Pile':'LEAN',
+    'Rebar Works':'REBAR','Formwork':'FORM','Casting':'CAST',
+  };
+  function hA(hex,a){
+    try{const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+      return`rgba(${r},${g},${b},${a})`;}catch(e){return hex;}
+  }
+  function rr2(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+
+  // ── 1. TITLE BAR ─────────────────────────────────────────────────────────
+  const tg = ctx.createLinearGradient(0,0,totalW,0);
+  tg.addColorStop(0,'#131920'); tg.addColorStop(1,'#1a2230');
+  ctx.fillStyle=tg; ctx.fillRect(0,0,totalW,TITLE_H);
+  ctx.strokeStyle='#263040'; ctx.lineWidth=1*F;
+  ctx.beginPath(); ctx.moveTo(0,TITLE_H); ctx.lineTo(totalW,TITLE_H); ctx.stroke();
+
+  ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=4*F;
+  ctx.font = 'bold '+(20*F)+'px sans-serif'; ctx.fillStyle='#f5c842';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('ERSS TAKT SCHEDULE — SKWPBD', PAD, TITLE_H*0.35);
+  ctx.shadowBlur=2*F;
+  ctx.font = (12*F)+'px "Courier New",monospace'; ctx.fillStyle='#a0c0e0';
+  ctx.fillText('Blk 3–6  ·  21 Zones  ·  5 Trades  ·  '+TOTAL_DAYS+' Day Window', PAD, TITLE_H*0.68);
+  ctx.shadowBlur=0;
+
+  // Date badge
+  const dbW=180*F, dbH=34*F;
+  const dbX=totalW-PAD-dbW, dbY=(TITLE_H-dbH)/2;
+  ctx.fillStyle='rgba(245,158,11,0.12)'; ctx.strokeStyle='rgba(245,158,11,0.5)';
+  ctx.lineWidth=1.5*F; rr2(ctx,dbX,dbY,dbW,dbH,5*F); ctx.fill(); ctx.stroke();
+  ctx.font=`bold ${12*F}px "Courier New",monospace`; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='center'; ctx.fillText(fmtD(cd), dbX+dbW/2, dbY+dbH*0.38);
+  ctx.font=`${9*F}px sans-serif`; ctx.fillStyle='#7a9ab8';
+  ctx.fillText('Playhead Date', dbX+dbW/2, dbY+dbH*0.72);
+
+  // ── 2. DATE HEADER ROW ────────────────────────────────────────────────────
+  const hdrY = TITLE_H;
+  // Label cell
+  ctx.fillStyle='#1a2230'; ctx.fillRect(0,hdrY,LW,HDR_H);
+  ctx.strokeStyle='#30404f'; ctx.lineWidth=1*F;
+  ctx.strokeRect(0,hdrY,LW,HDR_H);
+  ctx.font=`bold ${9*F}px sans-serif`; ctx.fillStyle='#7a9ab8';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('BLOCK / ZONE', LW/2, hdrY+HDR_H/2);
+
+  // Month group labels + day cells
+  let curMonth = -1, monthStartX = LW;
+  for(let i=0;i<=TOTAL_DAYS;i++){
+    const d   = addD(PLAN_START,i);
+    const x   = LW + i*CW;
+    const isWE= d.getDay()===0||d.getDay()===6;
+    const isT = i===TODAY_IDX;
+    const isP = i===dayIdx;
+
+    // Column background
+    if(isT)       ctx.fillStyle='rgba(245,158,11,0.15)';
+    else if(isP)  ctx.fillStyle='rgba(248,113,113,0.10)';
+    else if(isWE) ctx.fillStyle='rgba(255,255,255,0.008)';
+    else          ctx.fillStyle='#131920';
+    ctx.fillRect(x,hdrY,CW,HDR_H);
+
+    // Day number
+    ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=2*F;
+    ctx.font = (isT||isP?'bold ':'bold ')+(9*F)+'px "Courier New",monospace';
+    ctx.fillStyle = isT?'#f5a500': isP?'#ff8080': isWE?'#4a5a70':'#90a8c0';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(d.getDate(), x+CW/2, hdrY+HDR_H*0.68);
+    ctx.shadowBlur=0;
+
+    // Month label (first day of each month)
+    if(d.getMonth()!==curMonth){
+      if(curMonth > -2){
+        // Draw month label for previous month if not first
+        if(curMonth>=0){
+          const mW = x - monthStartX;
+          ctx.font=`bold ${9*F}px sans-serif`; ctx.fillStyle='#a0b8d0';
+          ctx.textAlign='center';
+          ctx.fillText(addD(PLAN_START,i-1).toLocaleDateString('en-GB',{month:'short',year:'numeric'}),
+            monthStartX+mW/2, hdrY+HDR_H*0.28);
+        }
+        monthStartX = x;
+      }
+      curMonth = d.getMonth();
+    }
+
+    // Grid line
+    ctx.strokeStyle='rgba(38,48,64,0.6)'; ctx.lineWidth=0.5*F;
+    ctx.beginPath(); ctx.moveTo(x,hdrY); ctx.lineTo(x,hdrY+HDR_H); ctx.stroke();
+  }
+  // Last month label
+  const lastX = LW+(TOTAL_DAYS+1)*CW;
+  const lastMW= lastX-monthStartX;
+  ctx.font=`bold ${9*F}px sans-serif`; ctx.fillStyle='#a0b8d0';
+  ctx.textAlign='center';
+  ctx.fillText(PLAN_END.toLocaleDateString('en-GB',{month:'short',year:'numeric'}),
+    monthStartX+lastMW/2, hdrY+HDR_H*0.28);
+
+  // Header bottom border
+  ctx.strokeStyle='#30404f'; ctx.lineWidth=1.5*F;
+  ctx.beginPath(); ctx.moveTo(0,hdrY+HDR_H); ctx.lineTo(totalW,hdrY+HDR_H); ctx.stroke();
+
+  // ── 3. BLOCK GROUPS + ZONE ROWS ──────────────────────────────────────────
+  let rowY = TITLE_H + HDR_H;
+
+  BLOCKS.forEach(blk=>{
+    const zones = ALL_ZONES[blk];
+
+    // Block header
+    const bhg=ctx.createLinearGradient(0,rowY,totalW,rowY);
+    bhg.addColorStop(0,'rgba(245,158,11,0.10)'); bhg.addColorStop(1,'rgba(245,158,11,0.03)');
+    ctx.fillStyle=bhg; ctx.fillRect(0,rowY,totalW,BLK_H);
+    ctx.strokeStyle='rgba(245,158,11,0.2)'; ctx.lineWidth=1*F;
+    ctx.beginPath(); ctx.moveTo(0,rowY+BLK_H); ctx.lineTo(totalW,rowY+BLK_H); ctx.stroke();
+
+    // Block label cell
+    ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.fillRect(0,rowY,LW,BLK_H);
+    // Amber left bar
+    ctx.fillStyle='#f59e0b'; ctx.fillRect(0,rowY,4*F,BLK_H);
+    ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=2*F;
+    ctx.font = 'bold '+(11*F)+'px sans-serif'; ctx.fillStyle='#f5c842';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(blk.toUpperCase()+'  —  '+zones.length+' Zones', 10*F, rowY+BLK_H/2);
+    ctx.shadowBlur=0;
+
+    // Block column stripes
+    for(let i=0;i<=TOTAL_DAYS;i++){
+      const d=addD(PLAN_START,i);
+      const x=LW+i*CW;
+      if(d.getDay()===0||d.getDay()===6){
+        ctx.fillStyle='rgba(255,255,255,0.006)'; ctx.fillRect(x,rowY,CW,BLK_H);
+      }
+    }
+
+    rowY += BLK_H;
+
+    // Zone rows
+    zones.forEach((z,zi)=>{
+      const zkey   = blk.replace(' ','')+'-'+z;
+      const zTasks = byZone[zkey]||[];
+      const rowBg  = zi%2===0?'#111a28':'#141e2e';
+
+      // Zone label cell
+      ctx.fillStyle=rowBg; ctx.fillRect(0,rowY,LW,ROW_H);
+      ctx.strokeStyle='#1e2a38'; ctx.lineWidth=0.5*F;
+      ctx.strokeRect(0,rowY,LW,ROW_H);
+
+      // Zone pill
+      const act2=zTasks.find(t=>{const s=getStatus(t);if(s.status==='Completed')return false;return cd>=effSD(t)&&cd<=effED(t);});
+      const tk2 = act2?(TRADE_KEY[act2.task]||'lean'):'';
+      const pillC= act2?(TRADE_HEX[act2.task]||'#888'):'rgba(255,255,255,0.12)';
+      rr2(ctx, 6*F, rowY+(ROW_H-24*F)/2, 24*F, 24*F, 3*F);
+      ctx.fillStyle = act2 ? hA(pillC,0.88) : 'rgba(255,255,255,0.10)'; ctx.fill();
+      ctx.strokeStyle = act2 ? pillC : 'rgba(255,255,255,0.3)';
+      ctx.lineWidth = 1.5*F; ctx.stroke();
+      ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=3*F;
+      ctx.font = 'bold '+(12*F)+'px "Courier New",monospace';
+      const pillTc = act2 ? (pillC==='#00C4FF'||pillC==='#22D67A'?'#000':'#fff') : '#dde6f0';
+      ctx.fillStyle = pillTc;
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(z, 18*F, rowY+ROW_H/2);
+      ctx.shadowBlur=0;
+
+      // Zone name + current trade label — high contrast with pill background
+      const tradeLabel = act2 ? (TRADE_SHORT[act2.task]||'') : '';
+      if(tradeLabel){
+        const trdC = TRADE_HEX[act2.task]||'#888';
+        ctx.font = 'bold '+(9*F)+'px "Courier New",monospace';
+        const trdW = ctx.measureText(tradeLabel).width + 10*F;
+        rr2(ctx, 33*F, rowY+ROW_H/2-9*F, trdW, 17*F, 2*F);
+        ctx.fillStyle = hA(trdC, 0.22); ctx.fill();
+        ctx.strokeStyle = hA(trdC, 0.55); ctx.lineWidth=0.8*F; ctx.stroke();
+        ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=2*F;
+        ctx.fillStyle = trdC; ctx.textAlign='left'; ctx.textBaseline='middle';
+        ctx.fillText(tradeLabel, 38*F, rowY+ROW_H/2);
+        ctx.shadowBlur=0;
+      }
+
+      // Cell backgrounds for this row
+      for(let i=0;i<=TOTAL_DAYS;i++){
+        const d=addD(PLAN_START,i);
+        const x=LW+i*CW;
+        const isWE=d.getDay()===0||d.getDay()===6;
+        const isT=i===TODAY_IDX, isP=i===dayIdx;
+        if(isT)       ctx.fillStyle='rgba(245,158,11,0.07)';
+        else if(isP)  ctx.fillStyle='rgba(248,113,113,0.05)';
+        else if(isWE) ctx.fillStyle='rgba(255,255,255,0.008)';
+        else          ctx.fillStyle=rowBg;
+        ctx.fillRect(x,rowY,CW,ROW_H);
+        // Vertical grid
+        ctx.strokeStyle='rgba(30,42,56,0.8)'; ctx.lineWidth=0.5*F;
+        ctx.beginPath(); ctx.moveTo(x,rowY); ctx.lineTo(x,rowY+ROW_H); ctx.stroke();
+      }
+
+      // Task bars
+      zTasks.forEach(t=>{
+        const st  = getStatus(t);
+        const sd  = effSD(t), ed = effED(t);
+        const ts  = diff(PLAN_START,sd), te = diff(PLAN_START,ed);
+        const bx  = LW + ts*CW + 1*F;
+        const bw  = (te-ts+1)*CW - 2*F;
+        const by  = rowY + 4*F;
+        const bh  = ROW_H - 8*F;
+
+        const tColor = TRADE_HEX[t.task]||'#888';
+        const isComp = st.status==='Completed';
+        const isDly  = st.status==='Delayed'||st.status==='Blocked';
+        const isAct  = !isComp&&cd>=sd&&cd<=ed;
+        const isPast = !isComp&&!isAct&&cd>ed;
+        const pct    = st.pct||0;
+
+        // Bar fill
+        let alpha=1;
+        if(isPast||isComp) alpha=0.28;
+        else if(!isAct) alpha=0.55;
+
+        rr2(ctx,bx,by,bw,bh,3*F);
+        ctx.fillStyle=hA(tColor,alpha); ctx.fill();
+
+        // Diagonal stripe for completed
+        if(isComp||isPast){
+          ctx.save(); ctx.clip();
+          ctx.strokeStyle=hA(tColor,0.15); ctx.lineWidth=2*F;
+          for(let sx=bx-bh;sx<bx+bw+bh;sx+=8*F){
+            ctx.beginPath(); ctx.moveTo(sx,by); ctx.lineTo(sx+bh,by+bh); ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Progress fill
+        if(isAct&&pct>0){
+          rr2(ctx,bx,by,bw*pct/100,bh,3*F);
+          ctx.fillStyle='rgba(255,255,255,0.18)'; ctx.fill();
+        }
+
+        // Delay dashed border
+        if(isDly){
+          ctx.save(); ctx.setLineDash([4*F,3*F]);
+          ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5*F;
+          rr2(ctx,bx,by,bw,bh,3*F); ctx.stroke();
+          ctx.restore(); ctx.setLineDash([]);
+        }
+
+        // Glow for active
+        if(isAct){
+          ctx.shadowColor=tColor; ctx.shadowBlur=8*F;
+          ctx.strokeStyle=tColor; ctx.lineWidth=1*F;
+          rr2(ctx,bx,by,bw,bh,3*F); ctx.stroke();
+          ctx.shadowBlur=0;
+        }
+
+        // ── Bar text — large, shadowed, high contrast ────────────────────
+        if(bw > 18*F){
+          ctx.save();
+          ctx.beginPath(); ctx.rect(bx+1*F, by+1*F, bw-2*F, bh-2*F); ctx.clip();
+          const lightBar = tColor==='#00C4FF'||tColor==='#22D67A';
+          const baseTC   = lightBar ? '#000' : '#fff';
+          const tc2      = (isComp||isPast) ? hA(baseTC, 0.7) : baseTC;
+          const shortLbl = TRADE_SHORT[t.task]||'';
+          const sfx      = isComp ? ' ✓' : isDly ? ' ⚠' : (isAct&&pct) ? ' '+pct+'%' : '';
+          // Use full name if plenty of space
+          const dispLbl  = bw > 110*F ? t.task : shortLbl;
+          const label    = dispLbl + sfx;
+          // Shadow for contrast against any background
+          ctx.shadowColor= lightBar ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.9)';
+          ctx.shadowBlur = 4*F;
+          ctx.font       = 'bold '+(10*F)+'px "Courier New",monospace';
+          ctx.fillStyle  = tc2;
+          ctx.textAlign  = 'left';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(label, bx+5*F, by+bh/2);
+          // Second pass — no shadow — for crispness
+          ctx.shadowBlur = 0;
+          ctx.fillText(label, bx+5*F, by+bh/2);
+          ctx.restore();
+        } else if(bw > 6*F){
+          // Narrow bar — centred icon
+          ctx.save();
+          ctx.beginPath(); ctx.rect(bx, by, bw, bh); ctx.clip();
+          ctx.shadowColor='rgba(0,0,0,0.9)'; ctx.shadowBlur=3*F;
+          ctx.font       = 'bold '+(9*F)+'px sans-serif';
+          ctx.fillStyle  = isDly?'#f59e0b': isComp?'#22D67A': '#ffffff';
+          ctx.textAlign  = 'center'; ctx.textBaseline='middle';
+          ctx.fillText(isDly?'⚠': isComp?'✓': '▶', bx+bw/2, by+bh/2);
+          ctx.shadowBlur = 0;
+          ctx.restore();
+        }
+      });
+
+      // Today line
+      const todayX = LW + TODAY_IDX*CW;
+      ctx.strokeStyle='rgba(245,158,11,0.9)'; ctx.lineWidth=1.5*F;
+      ctx.beginPath(); ctx.moveTo(todayX,rowY); ctx.lineTo(todayX,rowY+ROW_H); ctx.stroke();
+
+      // Playhead line
+      if(dayIdx!==TODAY_IDX){
+        const playX=LW+dayIdx*CW;
+        ctx.strokeStyle='rgba(248,113,113,0.7)'; ctx.lineWidth=1.5*F;
+        ctx.beginPath(); ctx.moveTo(playX,rowY); ctx.lineTo(playX,rowY+ROW_H); ctx.stroke();
+      }
+
+      // Row bottom border
+      ctx.strokeStyle='rgba(30,42,56,0.9)'; ctx.lineWidth=0.5*F;
+      ctx.beginPath(); ctx.moveTo(0,rowY+ROW_H); ctx.lineTo(totalW,rowY+ROW_H); ctx.stroke();
+      rowY += ROW_H;
+    });
+
+    // Block bottom border
+    ctx.strokeStyle='rgba(38,48,64,1)'; ctx.lineWidth=2*F;
+    ctx.beginPath(); ctx.moveTo(0,rowY); ctx.lineTo(totalW,rowY); ctx.stroke();
+  });
+
+  // ── 4. TODAY + PLAYHEAD FULL-HEIGHT LINES ────────────────────────────────
+  const lineTop = TITLE_H+HDR_H;
+  // Today
+  const todayX = LW+TODAY_IDX*CW;
+  ctx.strokeStyle='rgba(245,158,11,0.6)'; ctx.lineWidth=1.5*F;
+  ctx.setLineDash([8*F,4*F]);
+  ctx.beginPath(); ctx.moveTo(todayX,lineTop); ctx.lineTo(todayX,rowY); ctx.stroke();
+  // Today label at top
+  ctx.setLineDash([]);
+  const tlW=56*F, tlH=16*F;
+  rr2(ctx,todayX-tlW/2,TITLE_H+2*F,tlW,tlH,3*F);
+  ctx.fillStyle='rgba(245,158,11,0.9)'; ctx.fill();
+  ctx.font=`bold ${8*F}px sans-serif`; ctx.fillStyle='#000';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('TODAY', todayX, TITLE_H+2*F+tlH/2);
+
+  if(dayIdx!==TODAY_IDX){
+    const playX=LW+dayIdx*CW;
+    ctx.strokeStyle='rgba(248,113,113,0.5)'; ctx.lineWidth=1.5*F;
+    ctx.setLineDash([6*F,4*F]);
+    ctx.beginPath(); ctx.moveTo(playX,lineTop); ctx.lineTo(playX,rowY); ctx.stroke();
+    ctx.setLineDash([]);
+    rr2(ctx,playX-36*F,TITLE_H+2*F,72*F,tlH,3*F);
+    ctx.fillStyle='rgba(248,113,113,0.9)'; ctx.fill();
+    ctx.font=`bold ${8*F}px sans-serif`; ctx.fillStyle='#000';
+    ctx.textAlign='center'; ctx.fillText(fmtShort(cd), playX, TITLE_H+2*F+tlH/2);
+  }
+
+  // Left label column right border
+  ctx.strokeStyle='#30404f'; ctx.lineWidth=1.5*F; ctx.setLineDash([]);
+  ctx.beginPath(); ctx.moveTo(LW,TITLE_H); ctx.lineTo(LW,rowY); ctx.stroke();
+
+  // ── 5. LEGEND ─────────────────────────────────────────────────────────────
+  const legY2 = rowY;
+  ctx.fillStyle='#0e1520'; ctx.fillRect(0,legY2,totalW,LEG_H);
+  ctx.strokeStyle='#263040'; ctx.lineWidth=1*F;
+  ctx.beginPath(); ctx.moveTo(0,legY2); ctx.lineTo(totalW,legY2); ctx.stroke();
+
+  const legItems=[
+    {l:'Excavation',c:'#FF6B35'},{l:'Lean Concrete/Cut Pile',c:'#E91E8C'},
+    {l:'Rebar Works',c:'#00C4FF'},{l:'Formwork',c:'#A78BFA'},
+    {l:'Casting',c:'#22D67A'},
+    {l:'Completed',c:'#22D67A',dim:true},{l:'Active',c:'#E91E8C',glow:true},
+    {l:'Delayed',c:'#f59e0b',dash:true},
+    {l:'Today',c:'#f59e0b',line:true},{l:'Playhead',c:'#f87171',line:true},
+  ];
+  let lx2=PAD;
+  ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=2*F;
+  ctx.font = 'bold '+(10*F)+'px sans-serif'; ctx.fillStyle='#f5c842';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('LEGEND:', lx2, legY2+LEG_H/2); lx2+=68*F;
+  ctx.shadowBlur=0;
+
+  ctx.font = (10*F)+'px sans-serif';
+  legItems.forEach(({l,c,dim,line,dash})=>{
+    if(line){
+      // Line swatch
+      ctx.strokeStyle=c; ctx.lineWidth=2*F;
+      if(dash) ctx.setLineDash([4*F,3*F]);
+      ctx.beginPath(); ctx.moveTo(lx2,legY2+LEG_H/2); ctx.lineTo(lx2+16*F,legY2+LEG_H/2); ctx.stroke();
+      ctx.setLineDash([]);
+    } else {
+      rr2(ctx,lx2,legY2+LEG_H/2-6*F,16*F,12*F,2*F);
+      ctx.fillStyle=dim?hA(c,0.3):c; ctx.fill();
+      if(dash){ ctx.save(); ctx.setLineDash([3*F,2*F]); ctx.strokeStyle='#f59e0b'; ctx.lineWidth=1.5*F; ctx.stroke(); ctx.restore(); ctx.setLineDash([]); }
+    }
+    ctx.shadowColor='rgba(0,0,0,0.5)'; ctx.shadowBlur=1*F;
+    ctx.fillStyle='#dde8f4'; ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(l, lx2+20*F, legY2+LEG_H/2);
+    ctx.shadowBlur=0;
+    lx2 += 20*F + ctx.measureText(l).width + 16*F;
+  });
+
+  // ── Download ──────────────────────────────────────────────────────────────
+  cv.toBlob(blob=>{
+    if(!blob){ showToast('Export failed'); return; }
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='ERSS_TaktSchedule_'+df(new Date())+'.png';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),3000);
+    showToast('✓ Takt Schedule exported — '+totalW+'×'+totalH+'px');
+  },'image/png');
 }
 
 </script>
