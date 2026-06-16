@@ -110,8 +110,8 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 .blk-badge{font-size:10px;font-weight:700;color:#000;background:var(--accent);padding:2px 6px;border-radius:3px}
 .zone-rows{display:flex;flex-direction:column;gap:4px}
 .z-row{display:flex;align-items:center;gap:7px}
-.z-id{font-family:var(--mono);font-size:12px;font-weight:700;color:#a0b8d0;width:16px;text-align:center;flex-shrink:0}
-.z-track{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;height:32px;position:relative;overflow:hidden;display:flex}
+.z-id{font-family:var(--mono);font-size:13px;font-weight:700;color:#c8dcf0;width:18px;text-align:center;flex-shrink:0}
+.z-track{flex:1;background:var(--surface2);border:1px solid var(--border);border-radius:4px;height:36px;position:relative;overflow:hidden;display:flex}
 .z-seg{height:100%;flex-shrink:0;transition:opacity .2s}
 .z-seg.excav{background:rgba(255,107,53,.28)}.z-seg.lean{background:rgba(233,30,140,.28)}
 .z-seg.rebar{background:rgba(0,196,255,.28)}.z-seg.form{background:rgba(167,139,250,.28)}
@@ -122,9 +122,9 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
 .z-seg.past-task{opacity:.22}.z-seg.future-task{opacity:.45}
 @keyframes pulse{0%,100%{filter:brightness(1)}50%{filter:brightness(1.4)}}
 .z-seg.active-task{animation:pulse 1.7s ease-in-out infinite}
-.z-label-overlay{position:absolute;inset:0;display:flex;align-items:center;padding:0 5px;pointer-events:none;z-index:2}
-.z-label-text{font-size:10px;font-family:var(--mono);font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-shadow:0 1px 3px rgba(0,0,0,.8)}
-.z-status{font-size:10px;color:#8aa0bc;width:68px;text-align:right;font-family:var(--mono);flex-shrink:0;font-weight:600;letter-spacing:.02em}
+.z-label-overlay{position:absolute;inset:0;display:flex;align-items:center;padding:0 5px;pointer-events:none;z-index:2;background:linear-gradient(to right,rgba(0,0,0,.18) 0%,transparent 60%)}
+.z-label-text{font-size:11px;font-family:var(--mono);font-weight:700;color:#ffffff;white-space:nowrap;overflow:hidden;text-shadow:0 0 6px rgba(0,0,0,1),0 1px 2px rgba(0,0,0,1);letter-spacing:.04em;padding:0 2px}
+.z-status{font-size:11px;color:#b0c8e0;width:76px;text-align:right;font-family:var(--mono);flex-shrink:0;font-weight:700;letter-spacing:.03em}
 
 /* ══ GANTT ══ */
 .gantt-wrap{padding:14px 20px;overflow-x:auto}
@@ -427,6 +427,7 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
   <button class="tab-btn active" onclick="switchTab('pmap',this)">🗺 Piling Plans</button>
   <button class="tab-btn" onclick="switchTab('map',this)">📊 Zone Status</button>
   <button class="tab-btn" onclick="switchTab('gantt',this)">📅 Takt Schedule</button>
+  <button class="tab-btn" onclick="switchTab('vsm',this)">🔄 Value Stream Map</button>
 </div>
 
 <div class="ctrl">
@@ -615,6 +616,29 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
       <div class="gsl-item" id="legend-counts" style="color:var(--muted);font-size:10px;font-family:var(--mono)"></div>
     </div>
     <div class="gantt-box" id="gantt-box"></div>
+  </div>
+</div>
+
+<!-- ══ VALUE STREAM MAP ══ -->
+<div id="tab-vsm" class="tab-panel">
+  <div style="padding:14px 20px">
+    <!-- VSM Controls -->
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap">
+      <h2 style="font-size:14px;font-weight:600;flex:1">🔄 Value Stream Map — ERSS Earth Retention Support System</h2>
+      <div style="display:flex;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+        <button id="vsm-btn-6" class="pmap-btn active" onclick="setVsmBlock('Blk 6',this)" style="border:none;border-right:1px solid var(--border)">Block 6</button>
+        <button id="vsm-btn-5" class="pmap-btn" onclick="setVsmBlock('Blk 5',this)" style="border:none;border-right:1px solid var(--border)">Block 5</button>
+        <button id="vsm-btn-4" class="pmap-btn" onclick="setVsmBlock('Blk 4',this)" style="border:none;border-right:1px solid var(--border)">Block 4</button>
+        <button id="vsm-btn-3" class="pmap-btn" onclick="setVsmBlock('Blk 3',this)" style="border:none">Block 3</button>
+      </div>
+      <button class="tbtn" onclick="exportVsmPng()" style="border-color:var(--lean);color:var(--lean)">🖼 Export PNG</button>
+    </div>
+    <!-- VSM Canvas -->
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+      <canvas id="vsm-canvas" style="width:100%;display:block;cursor:default"></canvas>
+    </div>
+    <!-- VSM Legend & Metrics -->
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-top:12px" id="vsm-metrics"></div>
   </div>
 </div>
 
@@ -1605,14 +1629,25 @@ function update(){
       const zst=document.getElementById('zst-'+zkey);
       if(zlbl){
         if(act){const tk=TK[act.task]||'lean';const s=getStatus(act);const isD=s.status==='Delayed'||s.status==='Blocked';
-          zlbl.textContent=(isD?'⚠ ':'')+TS[act.task]+(s.pct?` ${s.pct}%`:'');
-          zlbl.style.color=isD?'#f59e0b':(TC[act.task]||'#fff');
-        }else{zlbl.textContent=allDone?'✓':'';zlbl.style.color='var(--cast)'}
+          zlbl.textContent=(isD?'⚠ ':'')+TS[act.task]+(s.pct?' '+s.pct+'%':'');
+          // Use HIGH-CONTRAST colour: white on dark trade colours, black on light ones
+          const lightTrade=act.task==='Rebar Works'||act.task==='Casting';
+          zlbl.style.color=isD?'#000':(lightTrade?'#000':'#fff');
+          zlbl.style.background=isD?'rgba(245,158,11,0.9)':(TC[act.task]?TC[act.task]+'cc':'transparent');
+          zlbl.style.borderRadius='3px';
+          zlbl.style.padding='0 4px';
+        }else{
+          zlbl.textContent=allDone?'✓ DONE':'';
+          zlbl.style.color=allDone?'#22D67A':'var(--muted)';
+          zlbl.style.background='transparent';
+          zlbl.style.borderRadius='';
+          zlbl.style.padding='';
+        }
       }
       if(zst){
-        if(isDelayed){zst.style.color='#f59e0b';zst.textContent='⚠ delay'}
-        else if(act){zst.style.color=TC[act.task];zst.textContent=TS[act.task]}
-        else if(allDone){zst.style.color='var(--cast)';zst.textContent='✓ done'}
+        if(isDelayed){zst.style.color='#f59e0b';zst.textContent='⚠ DELAY'}
+        else if(act){zst.style.color='#fff';zst.style.textShadow='0 0 8px '+TC[act.task];zst.textContent=TS[act.task]}
+        else if(allDone){zst.style.color='#22D67A';zst.textContent='✓ done'}
         else if(notStart){zst.style.color='var(--muted)';zst.textContent=fmtShort(firstS)}
         else{zst.style.color='var(--rebar)';zst.textContent='~'}
       }
@@ -1786,6 +1821,7 @@ function switchTab(name,btn){
   document.getElementById('tab-'+name).classList.add('active');
   if(btn) btn.classList.add('active');
   if(name==='pmap') updatePilingMap(activeBlock);
+  else if(name==='vsm') setTimeout(drawVSM,60);
   else update();
 }
 function switchBlock(blk, btn){
@@ -3666,6 +3702,471 @@ function exportGanttPng(){
     showToast('✓ Takt Schedule exported — '+totalW+'×'+totalH+'px');
   },'image/png');
 }
+
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// VALUE STREAM MAP
+// ══════════════════════════════════════════════════════════════════════════════
+var vsmBlock = 'Blk 6';
+
+// Pre-computed VSM data (avg days per trade per block)
+var VSM_DATA = {
+  'Blk 6': { zones:7, leadTime:42, totalCT:16.3,
+    steps:[
+      {name:'Excavation',     ct:4.4, workers:2, uptime:85, color:'#FF6B35'},
+      {name:'Lean Concrete\nCut Pile', ct:3.0, workers:1, uptime:90, color:'#E91E8C'},
+      {name:'Rebar Works',    ct:4.7, workers:3, uptime:80, color:'#00C4FF'},
+      {name:'Formwork',       ct:3.1, workers:2, uptime:85, color:'#A78BFA'},
+      {name:'Casting',        ct:1.0, workers:2, uptime:95, color:'#22D67A'},
+    ]},
+  'Blk 5': { zones:7, leadTime:36, totalCT:18.4,
+    steps:[
+      {name:'Excavation',     ct:4.7, workers:2, uptime:85, color:'#FF6B35'},
+      {name:'Lean Concrete\nCut Pile', ct:3.0, workers:1, uptime:90, color:'#E91E8C'},
+      {name:'Rebar Works',    ct:6.0, workers:3, uptime:75, color:'#00C4FF'},
+      {name:'Formwork',       ct:3.7, workers:2, uptime:80, color:'#A78BFA'},
+      {name:'Casting',        ct:1.0, workers:2, uptime:95, color:'#22D67A'},
+    ]},
+  'Blk 4': { zones:2, leadTime:19, totalCT:12.0,
+    steps:[
+      {name:'Excavation',     ct:4.0, workers:1, uptime:90, color:'#FF6B35'},
+      {name:'Lean Concrete\nCut Pile', ct:3.0, workers:1, uptime:90, color:'#E91E8C'},
+      {name:'Rebar Works',    ct:3.0, workers:2, uptime:85, color:'#00C4FF'},
+      {name:'Formwork',       ct:1.0, workers:1, uptime:90, color:'#A78BFA'},
+      {name:'Casting',        ct:1.0, workers:1, uptime:95, color:'#22D67A'},
+    ]},
+  'Blk 3': { zones:5, leadTime:33, totalCT:13.2,
+    steps:[
+      {name:'Excavation',     ct:4.4, workers:2, uptime:85, color:'#FF6B35'},
+      {name:'Lean Concrete\nCut Pile', ct:3.0, workers:1, uptime:90, color:'#E91E8C'},
+      {name:'Rebar Works',    ct:3.2, workers:2, uptime:85, color:'#00C4FF'},
+      {name:'Formwork',       ct:1.6, workers:1, uptime:88, color:'#A78BFA'},
+      {name:'Casting',        ct:1.0, workers:1, uptime:95, color:'#22D67A'},
+    ]},
+};
+
+function setVsmBlock(blk, btn){
+  vsmBlock = blk;
+  document.querySelectorAll('[id^="vsm-btn-"]').forEach(b=>{
+    b.style.background=''; b.style.color='';
+  });
+  if(btn){ btn.style.background='rgba(245,158,11,.18)'; btn.style.color='var(--accent)'; }
+  drawVSM();
+}
+
+function drawVSM(){
+  var canvas = document.getElementById('vsm-canvas');
+  if(!canvas) return;
+  var data = VSM_DATA[vsmBlock];
+  if(!data) return;
+
+  var DPR = Math.min(window.devicePixelRatio||1, 2);
+  var W   = canvas.parentElement.clientWidth || 900;
+  // Canvas height — computed after layout vars are set below
+  var H = 0; // placeholder, set after layout computation
+  // (canvas size and context set after H computed below)
+  var ctx = null; // will be set after layout
+
+  // ── Layout zones ──────────────────────────────────────────────────────────
+  // ── Fixed vertical layout — no overlaps ──────────────────────────────────
+  var PAD        = 24;
+  var HDR_H      = 54;   // header box height
+  var HDR_Y      = 14;   // header row top
+  var HDR_GAP    = 30;   // gap between header bottom and title text / arrows
+  var TITLE_Y    = HDR_Y + HDR_H + 8; // subtitle text row
+  var FLOW_Y     = HDR_Y + HDR_H + HDR_GAP + 90; // process box CENTRE (well below header)
+  var BOX_H      = 160;  // process box height
+  var BOX_TOP    = FLOW_Y - BOX_H/2;  // top of process boxes
+  var BOX_BOT    = FLOW_Y + BOX_H/2;  // bottom of process boxes
+  var DATABOX_Y  = BOX_BOT + 18;      // data box top
+  var DATABOX_H  = 72;
+  var TL_Y       = DATABOX_Y + DATABOX_H + 16; // timeline top
+  var TL_H       = 22;   // timeline bar height
+  var MET_H      = 20;   // metrics text height
+  var LEG_H      = 24;   // legend strip height
+  // Exact content height → canvas height
+  H = TL_Y + TL_H + MET_H + 14 + LEG_H + 10;
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+  ctx.fillStyle = '#0d1117'; ctx.fillRect(0,0,W,H);
+  var LEGEND_Y   = H - LEG_H + 2;
+  var n          = data.steps.length;
+  // Process box width — leave room for START/DONE circles (28px each side)
+  var AVAIL_W    = W - PAD*2 - 60;
+  var BOX_W      = Math.min(140, Math.floor(AVAIL_W / n) - 16);
+  var PROC_GAP   = Math.floor(AVAIL_W / n);
+  // Centre of each process box (centred within equal slots)
+  var SLOT_OFFSET = PAD + 30 + PROC_GAP/2; // 30 = START circle space
+  var procX = data.steps.map(function(_,i){
+    return SLOT_OFFSET + i * PROC_GAP;
+  });
+
+  // ── Helper functions ──────────────────────────────────────────────────────
+  function rr(x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+    ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+    ctx.lineTo(x+w,y+h-r); ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+    ctx.lineTo(x+r,y+h); ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+    ctx.lineTo(x,y+r); ctx.quadraticCurveTo(x,y,x+r,y);
+    ctx.closePath();
+  }
+  function arrow(x1,y1,x2,y2,col,w){
+    var hw=8, hl=12;
+    var ang = Math.atan2(y2-y1, x2-x1);
+    ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x2 - Math.cos(ang)*hl, y2 - Math.sin(ang)*hl);
+    ctx.strokeStyle=col||'#4a7cbc'; ctx.lineWidth=w||2.5; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2,y2);
+    ctx.lineTo(x2 - Math.cos(ang+0.4)*hw*1.2, y2 - Math.sin(ang+0.4)*hw*1.2);
+    ctx.lineTo(x2 - Math.cos(ang-0.4)*hw*1.2, y2 - Math.sin(ang-0.4)*hw*1.2);
+    ctx.closePath();
+    ctx.fillStyle=col||'#4a7cbc'; ctx.fill();
+  }
+  function pushArrow(x1,y,x2,col){
+    // Takt push arrow between process boxes
+    var mid = (x1+x2)/2;
+    ctx.beginPath(); ctx.moveTo(x1,y); ctx.lineTo(x2-14,y);
+    ctx.strokeStyle=col||'#263d5a'; ctx.lineWidth=2; ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(x2,y); ctx.lineTo(x2-14,y-8); ctx.lineTo(x2-14,y+8); ctx.closePath();
+    ctx.fillStyle=col||'#263d5a'; ctx.fill();
+    // PUSH label
+    ctx.font='bold 9px sans-serif'; ctx.fillStyle='rgba(140,190,255,0.85)';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('PUSH ▶', mid, y-16);
+  }
+  function worker(x,y,col){
+    col = col||'#4a9fd4';
+    // Head
+    ctx.beginPath(); ctx.arc(x,y,7,0,Math.PI*2);
+    ctx.fillStyle=col; ctx.fill();
+    // Body
+    ctx.beginPath(); ctx.moveTo(x,y+7); ctx.lineTo(x,y+20);
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+    // Arms
+    ctx.beginPath(); ctx.moveTo(x-9,y+12); ctx.lineTo(x+9,y+12);
+    ctx.stroke();
+    // Legs
+    ctx.beginPath(); ctx.moveTo(x,y+20); ctx.lineTo(x-7,y+30);
+    ctx.moveTo(x,y+20); ctx.lineTo(x+7,y+30);
+    ctx.stroke();
+  }
+  function machine(x,y,w,h,col){
+    // Process box (machine/process station)
+    var gradient = ctx.createLinearGradient(x,y,x,y+h);
+    gradient.addColorStop(0,'rgba(30,40,60,0.95)');
+    gradient.addColorStop(1,'rgba(15,20,35,0.95)');
+    rr(x,y,w,h,6); ctx.fillStyle=gradient; ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=2; ctx.stroke();
+    // Top colour bar
+    rr(x,y,w,18,6); ctx.fillStyle=col+'bb'; ctx.fill();
+    // Inner display (simulated screen)
+    rr(x+6,y+22,w-12,h-50,3);
+    ctx.fillStyle='rgba(0,196,255,0.05)'; ctx.fill();
+    ctx.strokeStyle='rgba(0,196,255,0.15)'; ctx.lineWidth=0.8; ctx.stroke();
+  }
+  function inventoryTriangle(x,y,col,days){
+    col = col||'#fbbf24';
+    ctx.beginPath();
+    ctx.moveTo(x,y-16); ctx.lineTo(x-13,y+8); ctx.lineTo(x+13,y+8); ctx.closePath();
+    ctx.fillStyle=col+'cc'; ctx.fill();
+    ctx.strokeStyle=col; ctx.lineWidth=1.5; ctx.stroke();
+    ctx.font='bold 9px monospace'; ctx.fillStyle='#fff';
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=3;
+    ctx.fillText(days,x,y+1);
+    ctx.shadowBlur=0;
+  }
+  function dataBox(x,y,w,step){
+    var h = DATABOX_H;
+    rr(x,y,w,h,4);
+    ctx.fillStyle='rgba(10,14,22,0.9)'; ctx.fill();
+    ctx.strokeStyle='rgba(100,130,180,0.35)'; ctx.lineWidth=1; ctx.stroke();
+    ctx.textAlign='left'; ctx.textBaseline='top';
+    ctx.font='bold 11px monospace'; ctx.fillStyle='#f59e0b';
+    ctx.fillText('C/T: '+step.ct+'d', x+8, y+6);
+    ctx.font='11px monospace'; ctx.fillStyle='#b8cce0';
+    ctx.fillText('Workers: '+step.workers, x+8, y+22);
+    ctx.fillText('Uptime:  '+step.uptime+'%', x+8, y+38);
+    ctx.fillText('Zones:   '+data.zones, x+8, y+54);
+  }
+
+  // ── 1. TITLE + HEADER ─────────────────────────────────────────────────────
+  // Title bar — full width strip above header boxes
+  ctx.fillStyle='rgba(15,20,30,0.95)'; ctx.fillRect(0,0,W,HDR_Y);
+  // Embed title in the supplier box row for space efficiency
+  ctx.fillStyle='#f59e0b'; ctx.font='bold 15px sans-serif';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  ctx.fillText('ERSS VALUE STREAM MAP — '+vsmBlock.toUpperCase()+' PILING PLAN', PAD+120, HDR_Y+HDR_H*0.38);
+  ctx.fillStyle='#6a8aaa'; ctx.font='11px monospace';
+  ctx.fillText('SKWPBD  ·  ERSS  ·  '+data.zones+' Zones  ·  Lead Time: '+data.leadTime+'d  ·  CT: '+data.totalCT+'d', PAD+120, HDR_Y+HDR_H*0.72);
+
+  // ── 2. CUSTOMER (right top) ────────────────────────────────────────────────
+  var custX = W - PAD - 110, custY = HDR_Y;
+  rr(custX, custY, 110, HDR_H, 5);
+  var cg = ctx.createLinearGradient(custX,custY,custX+110,custY+HDR_H);
+  cg.addColorStop(0,'#1a4a8a'); cg.addColorStop(1,'#0d2a5a');
+  ctx.fillStyle=cg; ctx.fill();
+  ctx.strokeStyle='#2d7ad4'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='18px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🏗', custX+22, custY+HDR_H*0.6);
+  ctx.font='bold 9px sans-serif'; ctx.fillStyle='#c8dcff';
+  ctx.fillText('PROJECT', custX+66, custY+HDR_H*0.35);
+  ctx.fillText('CLIENT', custX+66, custY+HDR_H*0.65);
+
+  // ── 3. PRODUCTION CONTROL (top centre) ────────────────────────────────────
+  var pcX = W/2 - 72, pcY = HDR_Y;
+  rr(pcX, pcY, 144, HDR_H, 5);
+  var pg = ctx.createLinearGradient(pcX,pcY,pcX+144,pcY+HDR_H);
+  pg.addColorStop(0,'#1a5c3a'); pg.addColorStop(1,'#0d3022');
+  ctx.fillStyle=pg; ctx.fill();
+  ctx.strokeStyle='#22c55e'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.font='bold 9px sans-serif'; ctx.fillStyle='#86efac'; ctx.textAlign='center';
+  ctx.fillText('TAKT PLANNING', W/2, pcY+14);
+  ctx.font='10px sans-serif'; ctx.fillStyle='#6ee7b7';
+  ctx.fillText('& PRODUCTION CONTROL', W/2, pcY+26);
+  ctx.fillText('Weekly Schedule', W/2, pcY+40);
+
+  // ── 4. SUPPLIER (left top) ────────────────────────────────────────────────
+  var supX = PAD, supY = HDR_Y;
+  rr(supX, supY, 110, HDR_H, 5);
+  var sg = ctx.createLinearGradient(supX,supY,supX+110,supY+HDR_H);
+  sg.addColorStop(0,'#5a2a00'); sg.addColorStop(1,'#3a1a00');
+  ctx.fillStyle=sg; ctx.fill();
+  ctx.strokeStyle='#f97316'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.font='18px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('🏭', supX+22, supY+HDR_H*0.6);
+  ctx.font='bold 9px sans-serif'; ctx.fillStyle='#fed7aa'; ctx.textAlign='center';
+  ctx.fillText('SITE', supX+66, supY+HDR_H*0.35);
+  ctx.fillText('SUPPLIER', supX+66, supY+HDR_H*0.65);
+
+  // Arrows: supplier → PC, customer → PC
+  arrow(supX+110, supY+HDR_H/2, pcX, pcY+HDR_H/2, '#f97316', 2);
+  arrow(custX, custY+HDR_H/2, pcX+144, pcY+HDR_H/2, '#2d7ad4', 2);
+  // PC → first process (solid) and last process (dashed)
+  arrow(pcX+72, pcY+HDR_H, procX[0], BOX_TOP-10, '#22c55e', 1.5);
+  ctx.setLineDash([4,3]);
+  arrow(pcX+72, pcY+HDR_H, procX[n-1], BOX_TOP-10, '#22c55e', 1.5);
+  ctx.setLineDash([]);
+
+  // ── 5. PROCESS BOXES ──────────────────────────────────────────────────────
+  data.steps.forEach(function(step, i){
+    var cx = procX[i];
+    var bx = cx - BOX_W/2;
+    var by = FLOW_Y - BOX_H/2;
+
+    // Machine/process box
+    machine(bx, by, BOX_W, BOX_H, step.color);
+
+    // Process name (top bar)
+    var nameLines = step.name.split('\n');
+    ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=3;
+    ctx.font = 'bold 11px sans-serif'; ctx.fillStyle='#fff'; ctx.textAlign='center';
+    nameLines.forEach(function(line,li){
+      ctx.fillText(line, cx, by+10+li*12);
+    });
+    ctx.shadowBlur=0;
+
+    // Worker figure inside box
+    worker(cx-18, by+35, step.color);
+
+    // Worker count circle
+    rr(cx+2, by+30, 22, 22, 4);
+    ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.fill();
+    ctx.strokeStyle=step.color+'88'; ctx.lineWidth=1; ctx.stroke();
+    ctx.font='bold 11px monospace'; ctx.fillStyle='#fff'; ctx.textAlign='center';
+    ctx.fillText(step.workers, cx+13, by+44);
+
+    // Efficiency ring (arc)
+    var rX=cx+12, rY=by+44, radius=14;
+    ctx.beginPath(); ctx.arc(rX,rY,radius,- Math.PI/2, -Math.PI/2 + Math.PI*2*(step.uptime/100));
+    ctx.strokeStyle=step.color; ctx.lineWidth=3; ctx.lineCap='round'; ctx.stroke();
+    ctx.lineCap='butt';
+    ctx.font='bold 9px monospace'; ctx.fillStyle=step.color; ctx.textAlign='center';
+    ctx.fillText(step.uptime+'%',rX,rY+radius+10);
+
+    // CT display inside box
+    ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=4;
+    ctx.fillStyle='#f59e0b'; ctx.font='bold 16px monospace'; ctx.textAlign='center';
+    ctx.fillText(step.ct+'d', cx, by+82);
+    ctx.shadowBlur=0;
+    ctx.fillStyle='rgba(200,220,240,0.75)'; ctx.font='bold 9px sans-serif';
+    ctx.fillText('Cycle Time', cx, by+97);
+
+    // Data box below
+    dataBox(bx, DATABOX_Y, BOX_W, step);
+
+    // Inventory triangle between processes
+    if(i < n-1){
+      var nextX = procX[i+1];
+      var midX  = (cx + nextX) / 2;
+      var waitDays = (data.steps[i+1].ct * 0.3).toFixed(1);
+      inventoryTriangle(midX, FLOW_Y, '#fbbf24', waitDays+'d');
+    }
+
+    // Push arrow between boxes
+    if(i < n-1){
+      var bxRight = bx + BOX_W;
+      var nextBxLeft = procX[i+1] - BOX_W/2;
+      pushArrow(bxRight+2, FLOW_Y, nextBxLeft-2, step.color+'88');
+    }
+  });
+
+  // ── 6. START & END NODES ──────────────────────────────────────────────────
+  // Site start (mobilisation)
+  var startX = PAD + 4, startY = FLOW_Y;
+  // Ensure START doesn't overlap first box
+  startX = Math.min(startX, procX[0] - BOX_W/2 - 20);
+  ctx.beginPath(); ctx.arc(startX,startY,14,0,Math.PI*2);
+  ctx.fillStyle='#f97316'; ctx.fill();
+  ctx.font='bold 9px sans-serif'; ctx.fillStyle='#fff'; ctx.textAlign='center';
+  ctx.textBaseline='middle'; ctx.fillText('START',startX,startY);
+  arrow(startX+14, startY, procX[0]-BOX_W/2-2, startY, '#f97316', 2.5);
+
+  // Complete node
+  var endX = Math.max(procX[n-1] + BOX_W/2 + 20, W - PAD - 16), endY = FLOW_Y;
+  ctx.beginPath(); ctx.arc(endX,endY,14,0,Math.PI*2);
+  ctx.fillStyle='#22D67A'; ctx.fill();
+  ctx.font='bold 10px sans-serif'; ctx.fillStyle='#000'; ctx.textAlign='center';
+  ctx.textBaseline='middle'; ctx.fillText('✓',endX,endY);
+  arrow(procX[n-1]+BOX_W/2+2, endY, endX-14, endY, '#22D67A', 2.5);
+
+  // ── 7. TIMELINE ZIGZAG (value vs. waste) ─────────────────────────────────
+  var tlY = TL_Y;
+  ctx.strokeStyle='rgba(50,60,80,0.5)'; ctx.lineWidth=1; ctx.setLineDash([4,4]);
+  ctx.beginPath(); ctx.moveTo(PAD, tlY); ctx.lineTo(W-PAD, tlY); ctx.stroke();
+  ctx.setLineDash([]);
+
+  var tlBarH = TL_H;
+  // Draw value-add (VA) and non-value-add (NVA) segments
+  var totalDays = data.leadTime;
+  var availW = W - PAD*2;
+  var startPx = PAD;
+
+  // Build timeline segments: [process CT, wait between, ...]
+  var segments = [];
+  data.steps.forEach(function(step, i){
+    segments.push({type:'VA', days:step.ct, color:step.color, label:step.name.split('\n')[0]});
+    if(i < n-1){
+      var wait = parseFloat((data.steps[i+1].ct*0.3).toFixed(1));
+      segments.push({type:'NVA', days:wait, color:'#374151', label:'Wait'});
+    }
+  });
+  var totalSeg = segments.reduce(function(s,seg){return s+seg.days;},0);
+
+  var px = startPx;
+  var zigPath_VA = [], zigPath_NVA = [];
+  var altHigh = true;
+
+  segments.forEach(function(seg){
+    var sw = seg.days/totalSeg * availW;
+    var segY = altHigh ? tlY - tlBarH : tlY + 2;
+    rr(px, segY, sw-2, tlBarH, 2);
+    if(seg.type==='VA'){
+      ctx.fillStyle = seg.color+'bb'; ctx.fill();
+      ctx.strokeStyle = seg.color; ctx.lineWidth=1; ctx.stroke();
+      zigPath_VA.push([px+sw/2, segY+tlBarH/2, seg.days+'d']);
+    } else {
+      ctx.fillStyle='rgba(55,65,81,0.7)'; ctx.fill();
+      ctx.strokeStyle='#4b5563'; ctx.lineWidth=1; ctx.stroke();
+      zigPath_NVA.push([px+sw/2, segY+tlBarH/2, seg.days+'d']);
+    }
+    // Label
+    if(sw > 24){
+      ctx.font='bold 9px monospace';
+      ctx.fillStyle = seg.type==='VA'?'#fff':'rgba(160,180,200,0.8)';
+      ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(seg.days+'d', px+sw/2, segY+tlBarH/2);
+    }
+    px += sw;
+    altHigh = !altHigh;
+  });
+
+  // Timeline labels
+  var metY = tlY + tlBarH + 16;
+  var efficiency = Math.round(data.totalCT/data.leadTime*100);
+  var nvaTotal   = (data.leadTime - data.totalCT).toFixed(1);
+  ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  [
+    {t:'▲ VA: '+data.totalCT+'d',       c:'#22D67A', x:PAD},
+    {t:'▽ NVA: '+nvaTotal+'d',          c:'#f87171', x:PAD+110},
+    {t:'Lead Time: '+data.leadTime+'d', c:'#f59e0b', x:PAD+220},
+    {t:'Flow Eff: '+efficiency+'%',     c:'#a78bfa', x:PAD+360},
+    {t:'Takt: '+(data.leadTime/data.zones).toFixed(1)+'d/zone', c:'#00C4FF', x:PAD+480},
+  ].forEach(function(item){
+    ctx.font='bold 11px sans-serif'; ctx.fillStyle=item.c;
+    ctx.shadowColor='rgba(0,0,0,0.7)'; ctx.shadowBlur=2;
+    ctx.fillText(item.t, item.x, metY);
+    ctx.shadowBlur=0;
+  });
+
+  // ── 8. LEGEND BOTTOM ─────────────────────────────────────────────────────
+  ctx.fillStyle='rgba(255,255,255,0.04)';
+  ctx.fillRect(0, LEGEND_Y-4, W, H-LEGEND_Y+4);
+  var lx = PAD;
+  [
+    {c:'#22D67A', l:'Value-Add'},
+    {c:'#374151', l:'Non-Value-Add'},
+    {c:'#fbbf24', l:'▲ WIP'},
+    {c:'#f59e0b', l:'C/T = Cycle Time'},
+    {c:'#a78bfa', l:'Workers in box'},
+  ].forEach(function(item){
+    ctx.font='10px sans-serif';
+    rr(lx, LEGEND_Y+2, 12, 12, 2); ctx.fillStyle=item.c; ctx.fill();
+    ctx.fillStyle='#9ab0c8';
+    ctx.textAlign='left'; ctx.textBaseline='middle';
+    ctx.fillText(item.l, lx+16, LEGEND_Y+8);
+    lx += 16 + ctx.measureText(item.l).width + 18;
+  });
+
+  // ── 9. UPDATE METRICS CARDS ───────────────────────────────────────────────
+  var metrics = document.getElementById('vsm-metrics');
+  if(metrics){
+    var eff = Math.round(data.totalCT/data.leadTime*100);
+    var nva = (data.leadTime - data.totalCT).toFixed(1);
+    var taktTime = (data.leadTime / data.zones).toFixed(1);
+    metrics.innerHTML = [
+      {l:'Lead Time',    v:data.leadTime+'d',  s:'start to completion', c:'#f59e0b'},
+      {l:'Total Cycle Time', v:data.totalCT+'d', s:'sum of all trades (avg/zone)', c:'#22D67A'},
+      {l:'Flow Efficiency', v:eff+'%', s:'VA÷Lead Time (target >60%)', c:'#a78bfa'},
+      {l:'Takt Time',    v:taktTime+'d', s:'lead time ÷ '+data.zones+' zones', c:'#00C4FF'},
+    ].map(function(m){
+      return '<div class="vsm-metric-card">'
+        +'<div class="vm-l">'+m.l+'</div>'
+        +'<div class="vm-v" style="color:'+m.c+'">'+m.v+'</div>'
+        +'<div class="vm-s">'+m.s+'</div></div>';
+    }).join('');
+  }
+}
+
+function exportVsmPng(){
+  var canvas = document.getElementById('vsm-canvas');
+  if(!canvas){ showToast('VSM not rendered yet'); return; }
+  canvas.toBlob(function(blob){
+    if(!blob){ showToast('Export failed'); return; }
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href=url; a.download='ERSS_VSM_'+vsmBlock.replace(' ','')+'_'+df(new Date())+'.png';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
+    showToast('✓ VSM exported — '+vsmBlock);
+  }, 'image/png');
+}
+
+// drawVSM is called from switchTab directly (no monkey-patch to avoid recursion)
+// Redraw on resize
+window.addEventListener('resize', function(){
+  if(document.getElementById('tab-vsm').classList.contains('active')) drawVSM();
+});
 
 </script>
 </body>
