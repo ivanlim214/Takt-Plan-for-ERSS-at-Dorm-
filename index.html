@@ -428,6 +428,7 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
   <button class="tab-btn" onclick="switchTab('map',this)">📊 Zone Status</button>
   <button class="tab-btn" onclick="switchTab('gantt',this)">📅 Takt Schedule</button>
   <button class="tab-btn" onclick="switchTab('vsm',this)">🔄 Value Stream Map</button>
+  <button class="tab-btn" onclick="switchTab('lob',this)">📈 Line of Balance</button>
 </div>
 
 <div class="ctrl">
@@ -665,6 +666,37 @@ input[type=range]{flex:1;min-width:160px;max-width:540px;accent-color:var(--acce
     </div>
     <!-- VSM Legend & Metrics -->
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:12px" id="vsm-metrics"></div>
+  </div>
+</div>
+
+<!-- ══ LINE OF BALANCE ══ -->
+<div id="tab-lob" class="tab-panel">
+  <div class="lob-toolbar">
+    <h2 style="font-size:14px;font-weight:600;flex:0 0 auto">📈 Line of Balance — ERSS All Blocks</h2>
+    <div class="lob-ctrl-group">
+      <button class="tbtn active" id="lob-mode-all" onclick="setLobMode('all',this)">All Blocks</button>
+      <button class="tbtn" id="lob-mode-6" onclick="setLobMode('Blk 6',this)">Blk 6</button>
+      <button class="tbtn" id="lob-mode-5" onclick="setLobMode('Blk 5',this)">Blk 5</button>
+      <button class="tbtn" id="lob-mode-4" onclick="setLobMode('Blk 4',this)">Blk 4</button>
+      <button class="tbtn" id="lob-mode-3" onclick="setLobMode('Blk 3',this)">Blk 3</button>
+      <button class="tbtn" id="lob-mode-2" onclick="setLobMode('Blk 2',this)">Blk 2</button>
+      <button class="tbtn" id="lob-mode-1" onclick="setLobMode('Blk 1',this)">Blk 1</button>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;margin-left:auto">
+      <label style="font-size:11px;color:var(--muted)">
+        <input type="checkbox" id="lob-show-today" checked onchange="drawLoB()"> Show Playhead
+      </label>
+      <label style="font-size:11px;color:var(--muted)">
+        <input type="checkbox" id="lob-show-zone-labels" checked onchange="drawLoB()"> Zone Labels
+      </label>
+      <button class="tbtn" onclick="exportLobPng()" style="border-color:var(--lean);color:var(--lean)">🖼 Export PNG</button>
+    </div>
+  </div>
+  <div style="padding:0 20px 14px">
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r);overflow:hidden">
+      <canvas id="lob-canvas" style="width:100%;display:block"></canvas>
+    </div>
+    <div id="lob-legend" style="display:flex;gap:16px;flex-wrap:wrap;padding:10px 4px 0;font-size:11px;color:var(--muted)"></div>
   </div>
 </div>
 
@@ -1915,6 +1947,10 @@ function update(){
 
   // Update piling map — refresh all blocks so timeline drag shows tasks in all zones
   ['Blk 6','Blk 5','Blk 4','Blk 3','Blk 2','Blk 1'].forEach(b=>updatePilingMap(b));
+  // Refresh LoB if visible
+  if(document.getElementById('tab-lob') && document.getElementById('tab-lob').classList.contains('active')){
+    drawLoB();
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -1935,6 +1971,7 @@ function switchTab(name,btn){
   if(btn) btn.classList.add('active');
   if(name==='pmap') updatePilingMap(activeBlock);
   else if(name==='vsm') setTimeout(drawVSM,60);
+  else if(name==='lob') setTimeout(drawLoB,60);
   else update();
 }
 function switchBlock(blk, btn){
@@ -4435,6 +4472,471 @@ function exportVsmPng(){
 window.addEventListener('resize', function(){
   if(document.getElementById('tab-vsm').classList.contains('active')) drawVSM();
 });
+
+
+// ══════════════════════════════════════════════════════════════════════════════
+// LINE OF BALANCE (Flow Line Chart)
+// X axis = Time (dates)
+// Y axis = Location / Zone within each block
+// Each trade becomes a diagonal line (or band) flowing from bottom-left to top-right
+// Each block gets its own cluster of zone levels; blocks separated by gaps
+// ══════════════════════════════════════════════════════════════════════════════
+
+var lobMode = 'all';  // 'all' or a specific block name
+
+function setLobMode(mode, btn){
+  lobMode = mode;
+  document.querySelectorAll('[id^="lob-mode-"]').forEach(function(b){
+    b.classList.remove('active');
+    b.style.background=''; b.style.color='';
+  });
+  if(btn){ btn.classList.add('active'); btn.style.background='rgba(0,196,255,.12)'; btn.style.color='var(--rebar)'; }
+  drawLoB();
+}
+
+function drawLoB(){
+  var canvas = document.getElementById('lob-canvas');
+  if(!canvas) return;
+
+  var showToday   = document.getElementById('lob-show-today') ? document.getElementById('lob-show-today').checked : true;
+  var showZoneLbl = document.getElementById('lob-show-zone-labels') ? document.getElementById('lob-show-zone-labels').checked : true;
+
+  var DPR = Math.min(window.devicePixelRatio||1, 2);
+  var W   = canvas.parentElement.clientWidth || 1000;
+
+  // ── Gather blocks to show ────────────────────────────────────────────────
+  // In LoB, lower blocks (Blk 1) are at the BOTTOM, upper blocks (Blk 6) at the TOP
+  // Zones within each block: Zone A at bottom, last zone at top (slopes up left→right)
+  var showBlocks = lobMode === 'all' ? ['Blk 1','Blk 2','Blk 3','Blk 4','Blk 5','Blk 6']
+                                     : [lobMode];
+
+  // ── Trade colours ─────────────────────────────────────────────────────────
+  var TRADE_COL = {
+    'Excavation':            '#FF6B35',
+    'Lean Concrete/Cut Pile':'#E91E8C',
+    'Rebar Works':           '#00C4FF',
+    'Formwork':              '#A78BFA',
+    'Casting':               '#22D67A',
+  };
+  var TRADE_SHORT = {
+    'Excavation':'EXCAV', 'Lean Concrete/Cut Pile':'LEAN',
+    'Rebar Works':'REBAR', 'Formwork':'FORM', 'Casting':'CAST',
+  };
+  var TRADE_LIST = ['Excavation','Lean Concrete/Cut Pile','Rebar Works','Formwork','Casting'];
+
+  var BLK_COLORS = {
+    'Blk 6':'#f59e0b','Blk 5':'#34d399','Blk 4':'#60a5fa',
+    'Blk 3':'#f87171','Blk 2':'#c084fc','Blk 1':'#fbbf24'
+  };
+
+  // ── Build LoB data rows ───────────────────────────────────────────────────
+  // For each block: rows = sorted zone list (A, B, C...) as Y positions
+  // For each zone row: each trade occupies [start_day, end_day] on X axis
+  var LOB_DATA = [];  // [{blk, zone, zoneIdx, tradeSegments: [{trade, sd, ed}]}]
+
+  var totalRows = 0;
+  var BLK_GAP  = 1.0; // gap rows between blocks (in zone units)
+
+  var blockMeta = {};
+  showBlocks.forEach(function(blk){
+    var blkTasks = RAW.filter(function(r){ return r.block===blk; });
+    // Sort zones by first-trade (Excavation) start date so LoB lines slope upward
+    var zones = (zonesOf[blk]||[]).slice().sort(function(a, b){
+      var taskA = blkTasks.find(function(r){ return r.zone===a && r.task==='Excavation'; });
+      var taskB = blkTasks.find(function(r){ return r.zone===b && r.task==='Excavation'; });
+      var sdA   = taskA ? effSD(taskA).getTime() : 0;
+      var sdB   = taskB ? effSD(taskB).getTime() : 0;
+      return sdA - sdB;  // earliest Excavation start = bottom of chart
+    });
+    var startRow = totalRows;
+    zones.forEach(function(z, zi){
+      var zoneTasks = blkTasks.filter(function(r){ return r.zone===z; });
+      var segs = TRADE_LIST.map(function(trade){
+        var t = zoneTasks.find(function(r){ return r.task===trade; });
+        if(!t) return null;
+        var s = getStatus(t);
+        return {trade:trade, sd:effSD(t), ed:effED(t),
+                status:s.status, pct:s.pct||0};
+      }).filter(Boolean);
+      LOB_DATA.push({blk:blk, zone:z, row:totalRows, segs:segs});
+      totalRows++;
+    });
+    blockMeta[blk] = {startRow:startRow, nZones:zones.length, zones:zones};
+    totalRows += BLK_GAP; // gap between blocks
+  });
+
+  // ── Layout constants ──────────────────────────────────────────────────────
+  var PAD_L  = 80;  // left label area (zone + block labels)
+  var PAD_R  = 16;
+  var PAD_T  = 48;
+  var PAD_B  = 54;  // bottom date axis
+  var ROW_H  = lobMode === 'all' ? Math.max(52, Math.floor((900 - PAD_T - PAD_B) / totalRows))
+                                 : 72;
+  var H      = PAD_T + totalRows * ROW_H + PAD_B;
+
+  canvas.width  = W * DPR;
+  canvas.height = H * DPR;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  var ctx = canvas.getContext('2d');
+  ctx.scale(DPR, DPR);
+
+  // ── Date axis: compress to actual data range for selected blocks ────────────
+  var chartW = W - PAD_L - PAD_R;
+
+  // Find earliest and latest day across selected blocks
+  var minDay = Infinity, maxDay = -Infinity;
+  LOB_DATA.forEach(function(row){
+    row.segs.forEach(function(seg){
+      var sd = diff(PLAN_START, seg.sd), ed = diff(PLAN_START, seg.ed);
+      if(sd < minDay) minDay = sd;
+      if(ed > maxDay) maxDay = ed;
+    });
+  });
+  if(minDay === Infinity){ minDay = 0; maxDay = TOTAL_DAYS; }
+  // Add small padding around the data range
+  var dayPad = Math.max(2, Math.round((maxDay - minDay) * 0.03));
+  var axisMin = Math.max(0, minDay - dayPad);
+  var axisMax = Math.min(TOTAL_DAYS, maxDay + dayPad);
+  var axisSpan = axisMax - axisMin;
+
+  function dayToX(day){
+    return PAD_L + ((day - axisMin) / axisSpan) * chartW;
+  }
+  function rowToY(row){
+    // Inverted: row 0 = bottom of chart area, higher rows = higher on canvas (smaller Y)
+    return PAD_T + (totalRows - 1 - row) * ROW_H;
+  }
+
+  // ── Background ─────────────────────────────────────────────────────────────
+  ctx.fillStyle = '#0b0f14'; ctx.fillRect(0,0,W,H);
+
+  // ── Draw block band backgrounds ────────────────────────────────────────────
+  showBlocks.forEach(function(blk){
+    var m = blockMeta[blk];
+    // With inverted Y: topmost zone = smallest Y, bottommost zone = largest Y
+    var yTop    = rowToY(m.startRow + m.nZones - 1);      // top of block band
+    var yBottom = rowToY(m.startRow) + ROW_H;             // bottom of block band
+    ctx.fillStyle = BLK_COLORS[blk] ? (BLK_COLORS[blk]+'18') : 'rgba(255,255,255,0.02)';
+    ctx.fillRect(0, yTop, W, yBottom - yTop);
+
+    // Block label on left (vertically centred in band)
+    ctx.save();
+    ctx.fillStyle = BLK_COLORS[blk]||'#888';
+    ctx.font = 'bold 13px sans-serif';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(blk, PAD_L - 4, yTop + (yBottom - yTop)/2);
+    // Block bracket
+    ctx.strokeStyle = BLK_COLORS[blk]||'#888';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(PAD_L-3, yTop+2);
+    ctx.lineTo(PAD_L-3, yBottom-2);
+    ctx.stroke();
+    ctx.restore();
+  });
+
+  // ── Grid: horizontal zone lines ────────────────────────────────────────────
+  LOB_DATA.forEach(function(row){
+    var y = rowToY(row.row); // top of this zone band
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+    ctx.lineWidth = 0.5;
+    // Draw separator at BOTTOM of zone band (y + ROW_H)
+    ctx.beginPath(); ctx.moveTo(PAD_L, y+ROW_H); ctx.lineTo(W-PAD_R, y+ROW_H); ctx.stroke();
+
+    // Zone label (vertically centred in the zone band)
+    if(showZoneLbl){
+      ctx.fillStyle = 'rgba(180,200,220,0.9)';
+      ctx.font = 'bold 11px "Courier New",monospace';
+      ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+      ctx.fillText(row.zone, PAD_L - 6, y + ROW_H/2);
+    }
+  });
+
+  // ── Grid: vertical date lines (weekly + monthly) ───────────────────────────
+  for(var di=axisMin; di<=axisMax; di++){
+    var dd = addD(PLAN_START, di);
+    if(dd.getDay()===1){ // Mondays
+      var x = dayToX(di);
+      var isMonthStart = dd.getDate() <= 7;
+      ctx.strokeStyle = isMonthStart ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)';
+      ctx.lineWidth = isMonthStart ? 1 : 0.5;
+      ctx.beginPath(); ctx.moveTo(x,PAD_T); ctx.lineTo(x,H-PAD_B); ctx.stroke();
+    }
+  }
+
+  // ── Draw trade flow lines as simple bars per zone ───────────────────────────
+  // Each zone gets a horizontal bar (start→end date) per trade.
+  // Bars in successive zones are connected by a diagonal centre-line
+  // to show the upward flow direction — clean, readable LoB format.
+  showBlocks.forEach(function(blk){
+    var m = blockMeta[blk];
+    var barH = Math.max(10, ROW_H * 0.50); // bars at 50% row height — readable
+    var barPad = (ROW_H - barH) / 2;
+
+    TRADE_LIST.forEach(function(trade){
+      var col = TRADE_COL[trade] || '#888';
+      var rC=parseInt(col.slice(1,3),16), gC=parseInt(col.slice(3,5),16), bC=parseInt(col.slice(5,7),16);
+
+      var tradeRows = LOB_DATA.filter(function(r){ return r.blk===blk; })
+        .map(function(r){
+          var seg = r.segs.find(function(s){ return s.trade===trade; });
+          return seg ? {row:r.row, zone:r.zone, seg:seg} : null;
+        }).filter(Boolean);
+      if(!tradeRows.length) return;
+
+      var cd = addD(PLAN_START, dayIdx);
+
+      // ── 1. Draw connecting LoB flow line (the KEY element) ──────────────
+      // Draw AFTER bars so line sits on top
+      // Uses START-date edge (left side of each bar) — shows crew arrival pace
+      // Line connects zone bottom-left to next zone bottom-left (upward slope)
+      // Drawn at the end — placeholder here, actual draw after bar loop below
+
+      // ── 2. Draw a horizontal bar for each zone ───────────────────────────
+      tradeRows.forEach(function(tr){
+        var x0  = dayToX(diff(PLAN_START, tr.seg.sd));
+        var x1  = dayToX(diff(PLAN_START, tr.seg.ed)) + 1;
+        var yT  = rowToY(tr.row) + barPad;
+        var yB  = yT + barH;
+        var bW  = Math.max(3, x1 - x0);
+
+        // Status
+        var isComp   = tr.seg.status==='Completed' || (!cd || cd > tr.seg.ed);
+        var isActive = cd >= tr.seg.sd && cd <= tr.seg.ed && tr.seg.status!=='Completed';
+        var isDly    = tr.seg.status==='Delayed' || tr.seg.status==='Blocked';
+        var alpha    = isComp ? 0.18 : isActive ? 0.55 : 0.28;
+
+        // Bar fill
+        var r2 = Math.round(4); // corner radius
+        ctx.beginPath();
+        ctx.roundRect ? ctx.roundRect(x0, yT, bW, barH, r2)
+                      : ctx.rect(x0, yT, bW, barH);
+        ctx.fillStyle = 'rgba('+rC+','+gC+','+bC+','+alpha+')';
+        ctx.fill();
+
+        // Bar border
+        ctx.strokeStyle = isDly ? '#f59e0b' : 'rgba('+rC+','+gC+','+bC+','+(isActive?1:0.6)+')';
+        ctx.lineWidth   = isActive ? 1.5 : 0.8;
+        if(isDly) ctx.setLineDash([3,2]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Active glow
+        if(isActive){
+          ctx.shadowColor = col; ctx.shadowBlur = 6;
+          ctx.beginPath();
+          ctx.roundRect ? ctx.roundRect(x0, yT, bW, barH, r2)
+                        : ctx.rect(x0, yT, bW, barH);
+          ctx.strokeStyle = col; ctx.lineWidth = 1.5;
+          ctx.stroke();
+          ctx.shadowBlur = 0;
+        }
+
+        // Progress fill overlay
+        if(isActive && tr.seg.pct > 0){
+          var progW = bW * tr.seg.pct / 100;
+          ctx.beginPath();
+          ctx.roundRect ? ctx.roundRect(x0, yT, progW, barH, r2)
+                        : ctx.rect(x0, yT, progW, barH);
+          ctx.fillStyle = 'rgba(255,255,255,0.20)';
+          ctx.fill();
+        }
+
+        // Completed diagonal stripe
+        if(isComp){
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect ? ctx.roundRect(x0,yT,bW,barH,r2) : ctx.rect(x0,yT,bW,barH);
+          ctx.clip();
+          ctx.strokeStyle='rgba('+rC+','+gC+','+bC+',0.25)'; ctx.lineWidth=1.5;
+          for(var sx=x0-barH; sx<x0+bW+barH; sx+=6){
+            ctx.beginPath(); ctx.moveTo(sx,yT); ctx.lineTo(sx+barH,yB); ctx.stroke();
+          }
+          ctx.restore();
+        }
+
+        // Bar label (trade abbreviation inside bar if wide enough)
+        if(bW > 22){
+          ctx.save();
+          ctx.beginPath();
+          ctx.roundRect ? ctx.roundRect(x0+1,yT+1,bW-2,barH-2,r2) : ctx.rect(x0+1,yT+1,bW-2,barH-2);
+          ctx.clip();
+          var fontSize = Math.min(12, Math.max(9, barH * 0.50));
+          ctx.font = 'bold '+Math.round(fontSize)+'px "Courier New",monospace';
+          ctx.textAlign='center'; ctx.textBaseline='middle';
+          ctx.shadowColor='rgba(0,0,0,0.8)'; ctx.shadowBlur=3;
+          var tc = (rC>180&&gC>180) || (gC>200&&bC<100) ? '#000' : '#fff';
+          ctx.fillStyle = isComp ? 'rgba(255,255,255,0.5)' : tc;
+          ctx.fillText(TRADE_SHORT[trade]||trade.slice(0,5), x0+bW/2, yT+barH/2);
+          ctx.shadowBlur=0;
+          ctx.restore();
+        }
+      });
+
+      // ── 3. Bold LoB flow line ON TOP of bars (the primary visual) ────────
+      if(tradeRows.length > 1){
+        var isDelayedLine = tradeRows.some(function(tr){
+          return tr.seg.status==='Delayed'||tr.seg.status==='Blocked';
+        });
+
+        // Start-date line — solid, thick, glowing (crew ARRIVAL velocity)
+        ctx.beginPath();
+        tradeRows.forEach(function(tr, i){
+          var x   = dayToX(diff(PLAN_START, tr.seg.sd));
+          var yCen= rowToY(tr.row) + barPad + barH/2;
+          if(i===0) ctx.moveTo(x, yCen); else ctx.lineTo(x, yCen);
+        });
+        ctx.strokeStyle = 'rgba('+rC+','+gC+','+bC+',0.95)';
+        ctx.lineWidth = 4;
+        ctx.lineJoin  = 'round';
+        ctx.shadowColor = col; ctx.shadowBlur = 8;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        // End-date line — thinner dashed (crew DEPARTURE / completion boundary)
+        ctx.beginPath();
+        tradeRows.forEach(function(tr, i){
+          var x   = dayToX(diff(PLAN_START, tr.seg.ed));
+          var yCen= rowToY(tr.row) + barPad + barH/2;
+          if(i===0) ctx.moveTo(x, yCen); else ctx.lineTo(x, yCen);
+        });
+        ctx.strokeStyle = isDelayedLine
+          ? 'rgba(245,158,11,0.9)'
+          : 'rgba('+rC+','+gC+','+bC+',0.50)';
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([5,4]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Trade name pill label at mid-line
+        var midIdx = Math.floor(tradeRows.length/2);
+        var trA    = tradeRows[midIdx];
+        var trB    = tradeRows[Math.min(midIdx+1,tradeRows.length-1)];
+        var lx     = (dayToX(diff(PLAN_START,trA.seg.sd)) + dayToX(diff(PLAN_START,trB.seg.sd)))/2 - 14;
+        var ly     = (rowToY(trA.row)+rowToY(trB.row))/2 + barPad + barH/2;
+        ctx.font   = 'bold 11px "Courier New",monospace';
+        var tw     = ctx.measureText(TRADE_SHORT[trade]||'').width + 10;
+        ctx.fillStyle = 'rgba('+rC+','+gC+','+bC+',0.90)';
+        ctx.beginPath();
+        if(ctx.roundRect) ctx.roundRect(lx-tw/2, ly-7, tw, 14, 3);
+        else ctx.rect(lx-tw/2, ly-7, tw, 14);
+        ctx.fill();
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        var lightBg = (rC>170&&gC>170)||(col==='#00C4FF')||(col==='#22D67A');
+        ctx.fillStyle = lightBg ? '#000' : '#fff';
+        ctx.shadowColor='rgba(0,0,0,0.6)'; ctx.shadowBlur=2;
+        ctx.fillText(TRADE_SHORT[trade]||trade.slice(0,5), lx, ly);
+        ctx.shadowBlur=0;
+      }
+
+    });
+  });
+
+// ── Playhead vertical line ──────────────────────────────────────────────────
+  if(showToday){
+    var cdX = dayToX(dayIdx);
+    ctx.strokeStyle='rgba(248,113,113,0.85)'; ctx.lineWidth=1.5;
+    ctx.setLineDash([6,4]);
+    ctx.beginPath(); ctx.moveTo(cdX,PAD_T); ctx.lineTo(cdX,H-PAD_B); ctx.stroke();
+    ctx.setLineDash([]);
+    // Label
+    ctx.fillStyle='rgba(248,113,113,0.9)';
+    ctx.font='bold 9px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+    ctx.fillText(fmtShort(addD(PLAN_START,dayIdx)), cdX, PAD_T-2);
+
+    // Today
+    if(TODAY_IDX!==dayIdx){
+      var todX = dayToX(TODAY_IDX);
+      ctx.strokeStyle='rgba(245,158,11,0.7)'; ctx.lineWidth=1;
+      ctx.setLineDash([4,3]);
+      ctx.beginPath(); ctx.moveTo(todX,PAD_T); ctx.lineTo(todX,H-PAD_B); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle='rgba(245,158,11,0.9)';
+      ctx.font='bold 8px sans-serif'; ctx.textAlign='center'; ctx.textBaseline='bottom';
+      ctx.fillText('TODAY', todX, PAD_T-2);
+    }
+  }
+
+  // ── X axis: date labels ─────────────────────────────────────────────────────
+  ctx.fillStyle='rgba(255,255,255,0.04)'; ctx.fillRect(0,H-PAD_B,W,PAD_B);
+  ctx.strokeStyle='rgba(255,255,255,0.1)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(PAD_L,H-PAD_B); ctx.lineTo(W-PAD_R,H-PAD_B); ctx.stroke();
+
+  var prevMonth = -1;
+  for(var di2=axisMin; di2<=axisMax; di2++){
+    var dd2 = addD(PLAN_START, di2);
+    if(dd2.getDay()===1){ // Mondays
+      var x3 = dayToX(di2);
+      // Week tick
+      ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=0.8;
+      ctx.beginPath(); ctx.moveTo(x3,H-PAD_B); ctx.lineTo(x3,H-PAD_B+5); ctx.stroke();
+      // Week date
+      ctx.font='10px "Courier New",monospace'; ctx.fillStyle='rgba(150,170,190,0.85)';
+      ctx.textAlign='center'; ctx.textBaseline='top';
+      ctx.fillText(dd2.getDate(), x3, H-PAD_B+6);
+    }
+    // Month label
+    if(dd2.getMonth()!==prevMonth){
+      prevMonth = dd2.getMonth();
+      var mx = dayToX(di2);
+      ctx.strokeStyle='rgba(255,255,255,0.3)'; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(mx,H-PAD_B); ctx.lineTo(mx,H-PAD_B+12); ctx.stroke();
+      ctx.font='bold 12px sans-serif'; ctx.fillStyle='#b0c8e0';
+      ctx.textAlign='left'; ctx.textBaseline='top';
+      var mName = dd2.toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+      ctx.fillText(mName, mx+3, H-PAD_B+16);
+    }
+  }
+
+  // ── Y axis: Zone label column header ────────────────────────────────────────
+  ctx.fillStyle='rgba(255,255,255,0.03)'; ctx.fillRect(0,0,PAD_L,H);
+  ctx.font='bold 10px sans-serif'; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText('BLOCK / ZONE', PAD_L/2, PAD_T/2);
+
+  // ── Title ──────────────────────────────────────────────────────────────────
+  ctx.fillStyle='#0d1117'; ctx.fillRect(0,0,W,PAD_T);
+  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.moveTo(0,PAD_T); ctx.lineTo(W,PAD_T); ctx.stroke();
+  ctx.font='bold 16px sans-serif'; ctx.fillStyle='#f59e0b';
+  ctx.textAlign='left'; ctx.textBaseline='middle';
+  var title = lobMode==='all' ? 'ERSS LINE OF BALANCE — ALL BLOCKS (Blk 1–6)' : 'ERSS LINE OF BALANCE — '+lobMode.toUpperCase()+' PILING PLAN';
+  ctx.fillText(title, PAD_L, PAD_T/2);
+  ctx.font='9px "Courier New",monospace'; ctx.fillStyle='#5a7090';
+  ctx.textAlign='right';
+  ctx.fillText('SKWPBD · 35 Zones · 5 Trades · '+TOTAL_DAYS+' Day Window', W-PAD_R, PAD_T/2);
+
+  // ── Legend ─────────────────────────────────────────────────────────────────
+  var legend = document.getElementById('lob-legend');
+  if(legend){
+    legend.innerHTML = TRADE_LIST.map(function(trade){
+      var c = TRADE_COL[trade];
+      return '<div style="display:flex;align-items:center;gap:6px">'
+        +'<div style="width:28px;height:10px;background:'+c+';border-radius:2px;opacity:0.7"></div>'
+        +'<span>'+trade+'</span></div>';
+    }).join('')
+    + (lobMode==='all' ? '<span style="margin-left:10px;color:#5a7090">| Block colour = background band</span>' : '');
+  }
+}
+
+function exportLobPng(){
+  var canvas = document.getElementById('lob-canvas');
+  if(!canvas){ showToast('Draw the chart first'); return; }
+  canvas.toBlob(function(blob){
+    if(!blob){ showToast('Export failed'); return; }
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement('a');
+    a.href=url;
+    a.download = 'ERSS_LineOfBalance_'+df(new Date())+'.png';
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(function(){ URL.revokeObjectURL(url); },2000);
+    showToast('✓ Line of Balance exported');
+  }, 'image/png');
+}
 
 </script>
 </body>
